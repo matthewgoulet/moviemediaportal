@@ -79,3 +79,10 @@ def register_confirm(request):
 			state = fname + ' ' + lname
 			return render(request, 'register_confirm.html', {'state':state})
 	return render(request, 'error.html', {'state':state})
+
+def movie_main(request):
+	username = request.session['username'] = user.username
+	perm = ''
+	if user.is_staff():
+		perm = 'admin'
+	return render(request, 'movie_main.html', {'state':state, 'perm':perm})

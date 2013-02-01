@@ -1,13 +1,16 @@
 <html>
 <body>
 
+<a href='{% url rt:index %}'>Back to index</a>
+
 {% if perm == "admin" %}
 
 <br>
-{% if perm != "" %}
-
+{% elif perm != "" %}
+<a href='{% url rt:movie_suggest %}'>Suggest a movie</a>
 {% endif %}
 
+{{ state }}
 
 </body>
 </html>
