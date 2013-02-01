@@ -1,0 +1,20 @@
+<html>
+<body>
+
+<title>Login page</title>
+<div id="description">
+<h2>Login</h2>
+<form action="{% url rt:index %}" method="post"> {% csrf_token %}
+<table class="login-table">
+<tr><td><label>Username:</label></td><td><input name="username" type="text" id="username" /></td></tr>
+<tr><td><label>Password:</label></td><td><input name="password" type="password" id="password" /></td></tr>
+<tr><td><input type="hidden" name="username2" value="" /></td></tr>
+<tr><td><input name="login" type="submit" class="button" value="    Login    " /></td></tr>
+<tr><td><td><a href='{% url rt:register %}'>Need an account?</a></td></td></tr>
+</table>
+</form>
+<br>
+{{ state }}
+<br>
+</body>
+</html>

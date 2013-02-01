@@ -1,0 +1,15 @@
+<html>
+<body>
+
+{{ state }}
+<br>
+
+{% if uid > 0 %}
+<a href='{% url rt:logout %}'>Log out</a>
+{% else %}
+<a href='{% url rt:login %}'>Login</a>
+<a href='{% url rt:register %}'>Register</a>
+{% endif %}
+
+</body>
+</html>
