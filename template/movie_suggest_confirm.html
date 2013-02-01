@@ -1,0 +1,17 @@
+<html>
+<body>
+<title>Movie Suggest Confirmation</title>
+<h3><b>You have submitted the following movie:</b></h3>
+<b>Title: </b> {{ title }} <br>
+<b>Year: </b> {{ year }} <br>
+<b>Director: </b> {{ director }} <br>
+<b>Producer: </b> {{ producer }} <br>
+<b>Actors: </b> {{ actors }} <br>
+<b>Synopsis: </b> {{ synopsis }} <br>
+<br>
+<a href='{% url rt:index %}'>Back to index</a>
+<br>
+<br>
+{{ state }}
+</body>
+</html>

@@ -5,6 +5,8 @@ from django.shortcuts import render
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
 
+from rt.models import Movie_Suggestion
+
 def index(request):
 	state = 'Not logged in.'
 	un = ''
@@ -81,8 +83,36 @@ def register_confirm(request):
 	return render(request, 'error.html', {'state':state})
 
 def movie_main(request):
-	username = request.session['username'] = user.username
+	state = ''
 	perm = ''
-	if user.is_staff():
-		perm = 'admin'
+	if 'username' in request.session:
+		user = User.objects.get(username=request.session['username'])
+		if user.is_staff:
+			perm = 'a'
+		else:
+			perm = 'u'
 	return render(request, 'movie_main.html', {'state':state, 'perm':perm})
+
+def movie_suggest(request):
+	state = ''
+	return render(request, 'movie_suggest.html', {'state':state})
+
+def movie_suggest_confirm(request):
+	st1 = st2 = st3 = st4 = st5 = st6 = ''
+	if request.POST:
+		ti = request.POST.get('title')
+		ye = request.POST.get('year')
+		di = request.POST.get('director')
+		pr = request.POST.get('producer')
+		ac = request.POST.get('actor')
+		sy = request.POST.get('synopsis')
+		movie = Movie_Suggestion(title=ti, year=ye, director=di, producer=pr, actors=ac, synopsis=sy)
+		st1 = str(movie.title)
+		st2 = str(movie.year)
+		st3 = str(movie.director)
+		st4 = str(movie.producer)
+		st5 = str(movie.actors)
+		st6 = str(movie.synopsis)
+		if not ti == '' and not ye == '' and not di == '' and not pr == '' and not ac == '' and not sy == '':
+			movie.save()
+	return render(request, 'movie_suggest_confirm.html', {'title':st1, 'year':st2, 'director':st3, 'producer':st4, 'actors':st5, 'synopsis':st6})
