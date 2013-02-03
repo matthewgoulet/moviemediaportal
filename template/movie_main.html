@@ -4,7 +4,7 @@
 <a href='{% url rt:index %}'>Back to index</a>
 <br>
 {% if perm == "a" %}
-<b>I am an admin!</b>
+<a href='{% url rt:movie_add %}'>Add a movie</a>
 <br>
 {% endif %}
 {% if perm != "" %}
@@ -12,6 +12,12 @@
 <br>
 {% endif %}
 
+<br><br>
+<b>Movie List:</b><br>
+{% for x, y in ids %}
+<a href='{% url rt:movie_info y %}'>{{ x }}</a><br>
+{% endfor %}
+<br><br>
 {{ state }}
 
 </body>

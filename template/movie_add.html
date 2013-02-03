@@ -1,0 +1,12 @@
+<html>
+<body>
+<b>This is the admin movie add page:</b>
+<br><br>
+{% for i in movies %}
+<a href='{% url rt:movie_add_confirm forloop.counter %}'>{{ i }}</a>
+<br>
+{% endfor %}
+<br><br>
+<a href='{% url rt:index %}'>Back to index</a>
+</body>
+</html>

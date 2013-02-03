@@ -1,0 +1,12 @@
+<html>
+<body>
+<b>Are you sure you want to delete {{ title }} ?</b>
+<br>
+<form action="{% url rt:movie_delete_confirm num %}" method="post"> {% csrf_token %}
+<table class="movie-delete-table">
+<tr><td>y/n: </td><td><input type="text" name="accept"></td></tr>
+<tr></tr>
+<td><input name="submit" type="submit" value="Submit"></td>
+</table>
+</body>
+</html>

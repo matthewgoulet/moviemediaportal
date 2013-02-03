@@ -3,7 +3,7 @@
 <h1> Suggest a movie</h1>
 <body>
 <form action="{% url rt:movie_suggest_confirm %}" method="post"> {% csrf_token %}
-<table class="register-table">
+<table class="moviesuggest-table">
 <tr><td>Title: </td><td><input type="text" name="title"></td></tr>
 <tr><td>Year: </td><td><input type="text" name="year"></td></tr>
 <tr><td>Director: </td><td><input type="text" name="director"></td></tr>

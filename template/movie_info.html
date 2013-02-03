@@ -1,0 +1,16 @@
+<html>
+<body>
+<title>Movie Information - {{ title }}</title>
+<h2>{{ title }}</h2>
+<b>Year: </b> {{ year }} <br>
+<b>Director: </b> {{ director }} <br>
+<b>Producer: </b> {{ producer }} <br>
+<b>Actors: </b> {{ actors }} <br>
+<b>Synopsis: </b> {{ synopsis }} <br>
+<br>
+<br>
+{% if perm == "a" %}
+<a href='{% url rt:movie_delete num %}'>Delete</a>
+{% endif %}
+</body>
+</html>
