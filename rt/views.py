@@ -98,10 +98,16 @@ def movie_main(request):
 
 def movie_suggest(request):
 	state = ''
+	if not 'username' in request.session:
+                state = "You do not have the permissions to suggest a movie."
+                return render(request, 'perm_denied.html', {'state':state})
 	return render(request, 'movie_suggest.html', {'state':state})
 
 def movie_suggest_confirm(request):
 	st1 = st2 = st3 = st4 = st5 = st6 = ''
+	if not 'username' in request.session:
+		state = "You do not have the permissions to suggest a movie."
+		return render(request, 'perm_denied.html', {'state':state})
 	if request.POST:
 		ti = request.POST.get('title')
 		ye = request.POST.get('year')
