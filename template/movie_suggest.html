@@ -1,5 +1,21 @@
 <html>
 <title>Movie Suggestion</title>
+
+<head>
+<link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}style.css">
+<link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}form-style.css">
+
+</head>
+
+<body>
+<div class="column">
+
+<div class="headerheader">
+	{% include 'navigation.html' %}
+</div><!--ends header-->
+
+<div class="notheader">
+<center>
 <h1> Suggest a movie</h1>
 <body>
 <form action="{% url rt:movie_suggest_confirm %}" method="post"> {% csrf_token %}
@@ -16,5 +32,13 @@
 <br>
 <b>{{ state }}</b>
 </form>
+</center>
+</div>
+
+</div> <!-- ends column -->
+
+<div class="footer">
+	{% include 'footer.html' %}
+</div>
 </body>
 </html> 

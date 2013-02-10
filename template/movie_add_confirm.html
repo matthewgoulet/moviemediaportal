@@ -1,7 +1,22 @@
 <html>
 <title>Add Movie Confirmation</title>
-<h1>Add the following movie:</h1>
+
+<head>
+<link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}style.css">
+<link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}form-style.css">
+
+</head>
+
 <body>
+<div class="column">
+
+<div class="headerheader">
+	{% include 'navigation.html' %}
+</div><!--ends header-->
+
+<div class="notheader">
+<center>
+<h1>Add the following movie:</h1>
 <form action="{% url rt:movie_add_end num %}" method="post"> {% csrf_token %}
 <table class="movieadd-table">
 <tr><td>Title: </td><td><input type="text" name="title" value="{{ title }}"></td></tr>
@@ -17,6 +32,13 @@
 </table>
 <br>
 <b>{{ state }}</b>
-</form>
+</center>
+</div>
+
+</div> <!-- ends column -->
+
+<div class="footer">
+	{% include 'footer.html' %}
+</div>
 </body>
-</html>
+</html> 

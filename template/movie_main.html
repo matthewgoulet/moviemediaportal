@@ -1,8 +1,20 @@
 <html>
-<body>
+<title>Register</title>
 
-<a href='{% url rt:index %}'>Back to index</a>
-<br>
+<head>
+<link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}style.css">
+<link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}form-style.css">
+
+</head>
+
+<body>
+<div class="column">
+
+<div class="headerheader">
+	{% include 'navigation.html' %}
+</div><!--ends header-->
+
+<div class="notheader">
 {% if perm == "a" %}
 <a href='{% url rt:movie_add %}'>Add a movie</a>
 <br>
@@ -19,6 +31,14 @@
 {% endfor %}
 <br><br>
 {{ state }}
+
+</div>
+</div> <!--ends column-->
+
+<div class="footer">
+	{% include 'footer.html' %}
+</div>
+</body>
 
 </body>
 </html>

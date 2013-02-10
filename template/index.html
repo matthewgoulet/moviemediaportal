@@ -1,18 +1,33 @@
 <html>
+<title>WELCOME</title>
+
+<head>
+<link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}style.css">
+<link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}form-style.css">
+
+</head>
+
+
+
+
 <body>
+<div class="column">
+
+<div class="headerheader">
+	{% include 'navigation.html' %}
+</div><!--ends header-->
+
+<div class="notheader">
 
 {{ state }}
-<br>
 
-{% if uid > 0 %}
-<a href='{% url rt:logout %}'>Log out</a>
-{% else %}
-<a href='{% url rt:login %}'>Login</a>
-<a href='{% url rt:register %}'>Register</a>
-{% endif %}
 
-<br><br>
-<a href='{% url rt:movie_main %}'>Movies</a>
+</div>
 
+</div> <!-- ends column -->
+
+<div class="footer">
+	{% include 'footer.html' %}
+</div>
 </body>
 </html>

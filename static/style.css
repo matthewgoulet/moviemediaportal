@@ -1,0 +1,171 @@
+html,body
+{
+    width: 100%;
+    margin: 0px;
+    padding: 0px;
+    overflow-x: hidden; 
+}
+
+body {
+	/* For any browser that can't create a gradient  */
+    background-color: #C9C0BB;
+	
+    /* Mozilla */
+    background: -moz-linear-gradient(top, #C9C0BB, #FFF);
+	
+    /* Chrome/Safari */
+    background: -webkit-gradient(linear, left top, left bottom, from(#C9C0BB), to(#FFFFFF));
+	
+    /* IE 6/7 */ 
+	filter:progid:DXImageTransform.Microsoft.Gradient(GradientType=0, StartColorStr='#C9C0BB',EndColorStr='#FFFFFF');
+	
+    /* IE 8 */
+    -ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr=#C9C0BB, endColorstr=#FFFFFF)";
+	
+	background-attachment:fixed;
+	
+	font-family:"Arial";
+}
+
+.loginlinks a:link {color: #414A4C; text-decoration:none;}
+.loginlinks a:visited {color: #414A4C; text-decoration:none;}
+.loginlinks a:active {color: #000000; text-decoration:none;}
+.loginlinks a:hover {color: #000000; text-decoration:none;}
+
+.menulinks a:link {color: #414A4C; text-decoration:none;}
+.menulinks a:visited {color: #414A4C; text-decoration:none;}
+.menulinks a:active {color: #C9C0BB; text-decoration:none;}
+.menulinks a:hover {color: #C9C0BB; text-decoration:none;}
+
+.bodylinks a:link {color: #414A4C; text-decoration:none;}
+.bodylinks a:visited {color: #414A4C; text-decoration:none;}
+.bodylinks a:active {color: #000000; text-decoration:none;}
+.bodylinks a:hover {color: #000000; text-decoration:none;}
+
+.footerlinks a:link {color: #FFFFFF; text-decoration:none;}
+.footerlinks a:visited {color: #FFFFFF; text-decoration:none;}
+.footerlinks a:active {color: #C9C0BB; text-decoration:none;}
+.footerlinks a:hover {color: #C9C0BB; text-decoration:none;}
+
+h1 {
+color:#000000;
+text-align:center;
+}
+
+p {
+font-family:"Arial";
+font-size:20px;
+}
+
+.column{
+	min-height:750px;
+	height:auto !important; 
+	height:750px;
+	position:relative;
+	width:1000px;
+	background-color:#FFFFFF;
+	margin: 0px auto;
+	padding-bottom:100px;
+}
+
+img.logo {
+	float:left;
+	clear:right;
+	position:relative;
+	top:30px;
+	left:20px;
+	z-index:10
+}
+
+#toprightlogin{
+    float:right;
+	position:relative;
+	top:20px;
+	right:20px;
+	font:15px arial,sans-serif;
+}
+
+.menubar{
+	height:75px;
+	background-color:#000000;
+	position:relative;
+	top:105px;
+	z-index:1;
+}
+
+.menuoptions{
+	font:30px arial,sans-serif;
+	position:relative;
+	top:15px;
+	left:50px;
+	height:55px;
+}
+
+.inactivemovieoption{
+	position:absolute;
+	height:55px;
+	width:120px;
+	left:220px;
+	padding-top:5px;
+}
+
+.inactivetvoption{
+	position:absolute;
+	height:55px;
+	width:70px;
+	left:340px;
+	padding-top:5px;
+}
+
+.inactiveactoroption{
+	position:absolute;
+	height:55px;
+	width:120px;
+	left:405px;
+	padding-top:5px;
+}
+
+#searchbar{
+	background:#C9C0BB;
+	height:30px;
+	width:320px;
+	position:absolute;
+	top:25px;
+	right:20px;
+	padding:0px 2px;
+	z-index:2;
+}
+
+.searchpic{
+	position:relative;
+	top:5px;
+	z-index:3;
+}
+
+.headerheader{
+	position:relative;
+	height:190px;
+	background-color:#ABCABC;
+	z-index:4
+}
+
+.notheader{
+	position:relative;
+}
+
+#list{
+	position:relative;
+	left: 20px;
+}
+
+.footer{
+	position:relative;
+	background:#000000;
+	width:1000px;
+	margin: 0px auto;
+}
+
+.contactus{
+	position:relative;
+	left:900px;
+}
