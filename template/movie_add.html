@@ -19,7 +19,7 @@
 
 <div class="notheader">
 <center>
-<b>This is the admin movie add page:</b>
+<b>Movie(s) to add:</b>
 <br><br>
 {% for i in movies %}
 <a href='{% url rt:movie_add_confirm forloop.counter %}'>{{ i }}</a>

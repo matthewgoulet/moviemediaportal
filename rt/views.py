@@ -140,6 +140,7 @@ def movie_suggest_confirm(request):
 		uid = request.session['uid']
 	if request.POST:
 		ti = request.POST.get('title')
+		ti = ti[0].capitalize() + ti[1:]
 		ye = request.POST.get('year')
 		di = request.POST.get('director')
 		pr = request.POST.get('producer')
@@ -178,7 +179,7 @@ def movie_add_confirm(request, i):
 	if 'username' in request.session:
 		uid = request.session['uid']
 		user = User.objects.get(username=request.session['username'])
-    	if not user.is_staff:
+		if not user.is_staff:
 			state = "You do not have the permissions to add a movie."
 			return render(request, 'perm_denied.html', {'state':state, 'uid':uid})
 	else:
