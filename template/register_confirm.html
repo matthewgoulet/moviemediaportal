@@ -1,12 +1,33 @@
 <html>
+<title>Registration Success</title>
+
 <head>
-<title>Registration success!</title>
+<link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}style.css">
+<link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}form-style.css">
+
+</head>
+
 <body>
+<div class="column">
+
+<div class="headerheader">
+	{% include 'navigation.html' %}
+</div><!--ends header-->
+
+<div class="notheader">
+<center>
 <b>Your registration has been successful.
 Welcome {{ state }} !</b>
 <br>
 <br>
 <a href='{% url rt:index %}'>Go back to index</a>
+</center>
+</div>
+
+</div> <!-- ends column -->
+
+<div class="footer">
+	{% include 'footer.html' %}
+</div>
 </body>
-</head>
-</html>
+</html> 

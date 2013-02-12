@@ -1,6 +1,20 @@
 <html>
-<body>
 <title>Movie Information - {{ title }}</title>
+
+<head>
+<link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}style.css">
+<link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}form-style.css">
+
+</head>
+
+<body>
+<div class="column">
+
+<div class="headerheader">
+	{% include 'navigation.html' %}
+</div><!--ends header-->
+
+<div class="notheader">
 <h2>{{ title }}</h2>
 <b>Year: </b> {{ year }} <br>
 <b>Director: </b> {{ director }} <br>
@@ -12,5 +26,12 @@
 {% if perm == "a" %}
 <a href='{% url rt:movie_delete num %}'>Delete</a>
 {% endif %}
+</div>
+
+</div> <!-- ends column -->
+
+<div class="footer">
+	{% include 'footer.html' %}
+</div>
 </body>
-</html>
+</html> 
