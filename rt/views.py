@@ -83,14 +83,16 @@ def register_confirm(request):
 	state = 'Registration failed.'
 	if request.POST:
 		fname = request.POST.get('firstname')
+		fname = request.POST['firstname']
 		lname = request.POST.get('lastname')
 		email = request.POST.get('email')
 		username = request.POST.get('username')
 		password = request.POST.get('password')
 		cpassword = request.POST.get('confirmPassword')
-		if fname == '' or lname == '' or email == '' or username == '' or password == '' or cpassword == '':
-			state = 'Information is missing. All fields must be completed.'
-			return(request, 'error.html', {'state':state})
+		if str(fname) == '' or str(lname) == '' or str(email) == '' or str(username) == '' or str(password) == '' or str(cpassword) == '':
+		#if len(str(fname)) == 0:
+			state = "A field is incomplete."
+			return render(request, 'error.html', {'state':state})
 		elif helper.user_present(username):
 			state = 'The username ' + username + ' is already taken. Please choose another one.'
 			return render(request, 'register.html', {'state':state, 'uid':uid})
@@ -140,7 +142,8 @@ def movie_suggest_confirm(request):
 		uid = request.session['uid']
 	if request.POST:
 		ti = request.POST.get('title')
-		ti = ti[0].capitalize() + ti[1:]
+		if len(ti) > 0:
+			ti = ti[0].capitalize() + ti[1:]
 		ye = request.POST.get('year')
 		di = request.POST.get('director')
 		pr = request.POST.get('producer')
@@ -155,7 +158,10 @@ def movie_suggest_confirm(request):
 		st6 = str(movie.synopsis)
 		if not ti == '' and not ye == '' and not di == '' and not pr == '' and not ac == '' and not sy == '':
 			movie.save()
-	return render(request, 'movie_suggest_confirm.html', {'title':st1, 'year':st2, 'director':st3, 'producer':st4, 'actors':st5, 'synopsis':st6, 'uid':uid})
+			return render(request, 'movie_suggest_confirm.html', {'title':st1, 'year':st2, 'director':st3, 'producer':st4, 'actors':st5, 'synopsis':st6, 'uid':uid})
+		else:
+			state = 'All fields need to be completed.'
+			return render(request, 'error.html', {'state':state})
 
 def movie_add(request):
 	uid = 0
