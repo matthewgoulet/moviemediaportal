@@ -1,5 +1,5 @@
 <html>
-<title>Movie Information - {{ title }}</title>
+<title>Actor Information - {{ title }}</title>
 
 <head>
 <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}style.css">
@@ -15,24 +15,14 @@
 </div><!--ends header-->
 
 <div class="notheader">
-<h2>{{ title }}</h2>
-<b>Year: </b> {{ year }} <br>
-<b>Director: </b> {{ director }} <br>
-<b>Producer: </b> {{ producer }} <br>
-<b>Actors: </b> - 
-{% for x, y in actors %}
-<a href='{% url rt:actor_info y %}'>{{ x }}</a> - 
-{% endfor %} 
-<br>
-<b>Synopsis: </b> {{ synopsis }} <br>
-<br>
-<br>
+<h2>{{ name }}</h2>
+<b>Year of birth: </b> {{ yearofbirth }} <br>
+<b>Place of birth: </b> {{ placeofbirth }} <br>
+
 {% if perm == "a" %}
-<a href='{% url rt:movie_delete num %}'>Delete</a>
+<a href='{% url rt:movie_delete num %}'>Delete TOBEDONE *******************</a>
 {% endif %}
 </div>
-
-{{ state }}
 
 </div> <!-- ends column -->
 

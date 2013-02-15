@@ -5,7 +5,7 @@ from django.shortcuts import render
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
 
-from rt.models import Movie_Suggestion, Movie_List
+from rt.models import Movie_Suggestion, MovieDB, ActorDB, MovieStarred
 
 def index(request):
 	state = 'Not logged in.'
@@ -90,7 +90,6 @@ def register_confirm(request):
 		password = request.POST.get('password')
 		cpassword = request.POST.get('confirmPassword')
 		if str(fname) == '' or str(lname) == '' or str(email) == '' or str(username) == '' or str(password) == '' or str(cpassword) == '':
-		#if len(str(fname)) == 0:
 			state = "A field is incomplete."
 			return render(request, 'error.html', {'state':state})
 		elif helper.user_present(username):
@@ -109,7 +108,7 @@ def movie_main(request):
 	state = ''
 	perm = ''
 	uid = 0
-	movies = Movie_List.objects.all()
+	movies = MovieDB.objects.all()
 	titles = helper.sort_title(movies)
 	ids = helper.sort_id(movies, titles)
 	if 'username' in request.session:
@@ -149,7 +148,7 @@ def movie_suggest_confirm(request):
 		pr = request.POST.get('producer')
 		ac = request.POST.get('actor')
 		sy = request.POST.get('synopsis')
-		movie = Movie_Suggestion(title=ti, year=ye, director=di, producer=pr, actors=ac, synopsis=sy)
+		movie = Movie_Suggestion(title=ti, year=ye, director=di, producer=pr, actors=ac, synopsis=sy, rating=0)
 		st1 = str(movie.title)
 		st2 = str(movie.year)
 		st3 = str(movie.director)
@@ -233,11 +232,32 @@ def movie_add_end(request, i):
 		if confirm == 'y' or confirm == 'yes':
 			#Checks if the movie is already in the database
 			try:
-				Movie_List.objects.get(title=st1)
+				MovieDB.objects.get(title=st1)
 				state = "The movie is already in the database. The suggestion will be deleted. Please edit the current movie."
-			except Movie_List.DoesNotExist:
-				newMovie = Movie_List(title=st1, year=st2, director=st3, producer=st4, actors=st5, synopsis=st6)
+			except MovieDB.DoesNotExist:
+				ac = st5.split(', ')
+				#Checks the relational property of Movie-Actor. If the actor is not present, add the actor
+				for i in ac:
+					try:
+						ActorDB.objects.get(name=i)
+					except ActorDB.DoesNotExist:
+						newActor = ActorDB(name=i, rating=0)
+						newActor.save()
+				newMovie = MovieDB(title=st1, year=st2, director=st3, producer=st4, synopsis=st6, rating=0)
 				newMovie.save()
+				
+				#Adds to the Movie-Actor relational table
+				for i in ac:
+					try:
+						addActor = ActorDB.objects.get(name=i)
+						try:
+							MovieStarred.objects.get(mID=newMovie, aID=addActor)
+						except MovieStarred.DoesNotExist:
+							newMARelation = MovieStarred(mID=newMovie, aID=addActor)
+							newMARelation.save()
+					except ActorDB.DoesNotExist:
+						continue
+				
 				state = "The movie has been successfully added to the database."
 			movie.delete()
 		elif confirm == 'n' or confirm == 'no':
@@ -252,6 +272,9 @@ def movie_info(request, i):
 	st1 = st2 = st3 = st4 = st5 = st6 = ''
 	perm = ''
 	uid = 0
+	actorList = []
+	aIDList = []
+	aList = []
 	if 'username' in request.session:
 		uid = request.session['uid']
 		user = User.objects.get(username=request.session['username'])
@@ -260,16 +283,33 @@ def movie_info(request, i):
 		else:
 			perm = 'u'
 	try:
-		movie = Movie_List.objects.get(id=i)
+		movie = MovieDB.objects.get(id=i)
 		st1 = movie.title
 		st2 = movie.year
 		st3 = movie.director
 		st4 = movie.producer
-		st5 = movie.actors
 		st6 = movie.synopsis
-	except Movie_List.DoesNotExist:
+		
+		try:
+			moviesStarred = MovieStarred.objects.filter(mID=movie)
+			actors = []
+			for l in moviesStarred:
+				actors.append(l.aID)
+			for i in actors:
+				actorList.append(i.name)
+			for j in actorList:
+				try:
+					aid = ActorDB.objects.get(name=j)
+					aIDList.append(aid.id)
+				except ActorDB.DoesNotExist:
+					continue
+			for i in range(len(actors)):
+				aList.append((str(actorList[i]), str(aIDList[i])))
+		except MovieStarred.DoesNotExist:
+			state = "Possible problem with the relational database."
+	except MovieDB.DoesNotExist:
 		state = "This movie does not exist in our database."
-	return render(request, 'movie_info.html', {'state':state, 'title':st1, 'year':st2, 'director':st3, 'producer':st4, 'actors':st5, 'synopsis':st6, 'perm':perm, 'num':i, 'uid':uid})
+	return render(request, 'movie_info.html', {'state':state, 'title':st1, 'year':st2, 'director':st3, 'producer':st4, 'actors':aList, 'synopsis':st6, 'perm':perm, 'num':i, 'uid':uid})
 
 def movie_delete(request, i):
 	uid = 0
@@ -277,7 +317,7 @@ def movie_delete(request, i):
 		uid = request.session['uid']
 		user = User.objects.get(username=request.session['username'])
 		if not user.is_staff:
-			state = "You do not have the permissions to add a movie."
+			state = "You do not have the permissions to delete a movie."
 			return render(request, 'perm_denied.html', {'state':state, 'uid':uid})
 	else:
 		state = "You are not logged in."
@@ -285,9 +325,9 @@ def movie_delete(request, i):
 	state = ''
 	st1 = ''
 	try:
-		movie = Movie_List.objects.get(id=i)
+		movie = MovieDB.objects.get(id=i)
 		st1 = movie.title
-	except Movie_List.DoesNotExist:
+	except MovieDB.DoesNotExist:
 		state = "This movie does not exist."
 		return render(request, 'error.html', {'state':state, 'uid':uid})
 	return render(request, 'movie_delete.html', {'state':state, 'title':st1, 'num':i, 'uid':uid})
@@ -306,14 +346,43 @@ def movie_delete_confirm(request, i):
 	if request.POST:
                 confirm = request.POST.get('accept')
 		if confirm == 'y' or confirm == 'yes':
+			#Removes from the MovieDB and relational database
 			try:
-				movie = Movie_List.objects.get(id=i)
+				movie = MovieDB.objects.get(id=i)
+				
+				try:
+					marelation = MovieStarred.objects.get(mID=movie)
+					for i in marelation:
+						i.delete()
+				except MovieStarred.DoesNotExist:
+					state = "Possible problem with the relational database."
 				movie.delete()
 				state = "The movie has been successfully deleted from the database."
-			except Movie_List.DoesNotExist:
+			except MovieDB.DoesNotExist:
 				state = "The movie doesn't exist in the database."
 		elif confirm == 'n' or confirm == 'no':
 			state = "The movie deletion has been refused. No changes have been made."
 		else:
 			state = "No changes have been made. Please answer correctly in the previous page with 'yes' or 'no'."
 	return render(request, 'movie_delete_confirm.html', {'state':state, 'uid':uid})
+	
+def actor_info(request, i):
+	state = ''
+	st1 = st2 = st3 = ''
+	perm = ''
+	uid = 0
+	if 'username' in request.session:
+		uid = request.session['uid']
+		user = User.objects.get(username=request.session['username'])
+		if user.is_staff:
+			perm = 'a'
+		else:
+			perm = 'u'
+	try:
+		movie = ActorDB.objects.get(id=i)
+		st1 = movie.name
+		st2 = movie.placeofbirth
+		st3 = movie.dateofbirth
+	except ActorDB.DoesNotExist:
+		state = "This actor does not exist in our database."
+	return render(request, 'actor_info.html', {'state':state, 'name':st1, 'placeofbirth':st2, 'dateofbirth':st3, 'perm':perm, 'num':i, 'uid':uid})
