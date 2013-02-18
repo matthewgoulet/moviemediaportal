@@ -1,5 +1,5 @@
 from django.contrib import admin
-from rt.models import Movie_Suggestion, MovieDB, ActorDB, MovieStarred
+from rt.models import Movie_Suggestion, MovieDB, Actor_Suggestion, ActorDB, MovieStarred
 
 class UserAdmin(admin.ModelAdmin):
 	fieldsets = [
@@ -14,6 +14,7 @@ class UserAdmin2(admin.ModelAdmin):
 		('Personal information', {'fields': ['name', 'placeofbirth', 'dateofbirth']})]
 		
 admin.site.register(ActorDB, UserAdmin2)
+admin.site.register(Actor_Suggestion, UserAdmin2)
 
 class MovieActorRelation(admin.ModelAdmin):
 	fieldsets = [

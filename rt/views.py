@@ -5,7 +5,7 @@ from django.shortcuts import render
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
 
-from rt.models import Movie_Suggestion, MovieDB, ActorDB, MovieStarred
+from rt.models import Movie_Suggestion, MovieDB, ActorDB, MovieStarred, Actor_Suggestion
 
 def index(request):
 	state = 'Not logged in.'
@@ -241,6 +241,8 @@ def movie_add_end(request, i):
 					try:
 						ActorDB.objects.get(name=i)
 					except ActorDB.DoesNotExist:
+						if len(i) > 0:
+							i = i[0].capitalize() + i[1:]
 						newActor = ActorDB(name=i, rating=0)
 						newActor.save()
 				newMovie = MovieDB(title=st1, year=st2, director=st3, producer=st4, synopsis=st6, rating=0)
@@ -386,3 +388,57 @@ def actor_info(request, i):
 	except ActorDB.DoesNotExist:
 		state = "This actor does not exist in our database."
 	return render(request, 'actor_info.html', {'state':state, 'name':st1, 'placeofbirth':st2, 'dateofbirth':st3, 'perm':perm, 'num':i, 'uid':uid})
+	
+def actor_main(request):
+	state = ''
+	perm = ''
+	uid = 0
+	actors = ActorDB.objects.all()
+	names = helper.sort_name(actors)
+	ids = helper.sort_actor_id(actors, names)
+	if 'username' in request.session:
+		uid = request.session['uid']
+		user = User.objects.get(username=request.session['username'])
+		if user.is_staff:
+			perm = 'a'
+		else:
+			perm = 'u'
+	return render(request, 'actor_main.html', {'state':state, 'perm':perm, 'ids':ids, 'uid':uid})
+	
+def actor_suggest(request):
+	state = ''
+	uid = 0
+	if 'username' in request.session:
+		un = str(request.session['username'])
+		uid = request.session['uid']
+	if not 'username' in request.session:
+                state = "You do not have the permissions to suggest an actor."
+                return render(request, 'perm_denied.html', {'state':state, 'uid':uid})
+	return render(request, 'actor_suggest.html', {'state':state, 'uid':uid})
+	
+def actor_suggest_confirm(request):
+	st1 = st2 = st3 = st4 = ''
+	uid = 0
+	if not 'username' in request.session:
+		state = "You do not have the permissions to suggest a movie."
+		return render(request, 'perm_denied.html', {'state':state, 'uid':uid})
+	else:
+		uid = request.session['uid']
+	if request.POST:
+		na = request.POST.get('name')
+		if len(na) > 0:
+			na = na[0].capitalize() + na[1:]
+		pl = request.POST.get('placeofbirth')
+		da = request.POST.get('dateofbirth')
+		mo = request.POST.get('movies')
+		actor = Actor_Suggestion(name=na, placeofbirth=pl, dateofbirth=da, movies=mo, rating=0)
+		st1 = str(actor.name)
+		st2 = str(actor.placeofbirth)
+		st3 = str(actor.dateofbirth)
+		st4 = str(actor.movies)
+		if not na == '' and not pl == '' and not da == '' and not mo == '':
+			actor.save()
+			return render(request, 'actor_suggest_confirm.html', {'name':st1, 'placeofbirth':st2, 'dateofbirth':st3, 'movies':st4, 'uid':uid})
+		else:
+			state = 'All fields need to be completed.'
+			return render(request, 'error.html', {'state':state})

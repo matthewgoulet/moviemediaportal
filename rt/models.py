@@ -23,6 +23,16 @@ class MovieDB(models.Model):
 	def __unicode__(self):
 		return self.title
 		
+class Actor_Suggestion(models.Model):
+	name = models.CharField('Name', max_length=100)
+	placeofbirth = models.CharField('Place of birth', max_length=100)
+	dateofbirth = models.CharField('Date of birth', max_length=10)
+	rating = models.IntegerField('Rating')
+	movies = models.CharField('Movies', max_length=500)
+	
+	def __unicode__(self):
+		return self.name
+		
 class ActorDB(models.Model):
 	name = models.CharField('Name', max_length=100)
 	placeofbirth = models.CharField('Place of birth', max_length=100)

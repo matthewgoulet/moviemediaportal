@@ -1,0 +1,35 @@
+<html>
+<title>Actor Suggest Confirmation</title>
+<head>
+<link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}style.css">
+<link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}form-style.css">
+
+</head>
+
+<body>
+<div class="column">
+
+<div class="headerheader">
+	{% include 'navigation.html' %}
+</div><!--ends header-->
+
+<div class="notheader">
+<h3><b>You have submitted the following actor:</b></h3>
+<b>Name: </b> {{ name }} <br>
+<b>Place of birth: </b> {{ placeofbirth }} <br>
+<b>Date of birth: </b> {{ dateofbirth }} <br>
+<b>Movies: </b> {{ movies }} <br>
+<br><br>
+<a href='{% url rt:index %}'>Back to index</a>
+<br>
+<br>
+{{ state }}
+</div>
+
+</div> <!-- ends column -->
+
+<div class="footer">
+	{% include 'footer.html' %}
+</div>
+</body>
+</html> 
