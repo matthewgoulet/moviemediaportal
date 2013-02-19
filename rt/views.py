@@ -570,3 +570,56 @@ def actor_add_end(request, i):
 		else:
 			state = "No changes have been made. Please answer correctly 'yes' or 'no' in the previous page."
 	return render(request, 'actor_add_end.html', {'state':state, 'name':st1, 'uid':uid})
+	
+def actor_delete(request, i):
+	uid = 0
+	if 'username' in request.session:
+		uid = request.session['uid']
+		user = User.objects.get(username=request.session['username'])
+		if not user.is_staff:
+			state = "You do not have the permissions to delete an actor."
+			return render(request, 'perm_denied.html', {'state':state, 'uid':uid})
+	else:
+		state = "You are not logged in."
+		return render(request, 'perm_denied.html', {'state':state, 'uid':uid})
+	state = ''
+	st1 = ''
+	try:
+		actor = ActorDB.objects.get(id=i)
+		st1 = actor.name
+	except ActorDB.DoesNotExist:
+		state = "This actor does not exist."
+		return render(request, 'error.html', {'state':state, 'uid':uid})
+	return render(request, 'actor_delete.html', {'state':state, 'name':st1, 'num':i, 'uid':uid})
+
+def actor_delete_confirm(request, i):
+	uid = 0
+	if 'username' in request.session:
+		uid = request.session['uid']
+		user = User.objects.get(username=request.session['username'])
+		if not user.is_staff:
+			state = "You do not have the permissions to add a movie."
+			return render(request, 'perm_denied.html', {'state':state, 'uid':uid})
+        else:
+                state = "You are not logged in."
+	state = ''
+	if request.POST:
+                confirm = request.POST.get('accept')
+		if confirm == 'y' or confirm == 'yes':
+			#Removes from the ActorDB and relational database
+			try:
+				actor = ActorDB.objects.get(id=i)
+				try:
+					marelation = MovieStarred.objects.get(aID=actor)
+					marelation.delete()
+				except MovieStarred.DoesNotExist:
+					state = "Possible problem with the relational database."
+				actor.delete()
+				state = "The actor has been successfully deleted from the database."
+			except ActorDB.DoesNotExist:
+				state = "The actor doesn't exist in the database."
+		elif confirm == 'n' or confirm == 'no':
+			state = "The actor deletion has been refused. No changes have been made."
+		else:
+			state = "No changes have been made. Please answer correctly in the previous page with 'yes' or 'no'."
+	return render(request, 'actor_delete_confirm.html', {'state':state, 'uid':uid})

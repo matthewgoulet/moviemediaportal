@@ -1,0 +1,43 @@
+<html>
+
+<title>Delete actor</title>
+
+<head>
+<link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}style.css">
+<link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}form-style.css">
+
+</head>
+
+<body>
+<div class="column">
+
+<div class="headerheader">
+	{% include 'navigation.html' %}
+</div><!--ends header-->
+
+<body>
+
+<div class="notheader">
+<center>
+<b>Are you sure you want to delete {{ name }} ?</b>
+<br>
+<form action="{% url rt:actor_delete_confirm num %}" method="post"> {% csrf_token %}
+<table class="movie-delete-table">
+<tr><td>y/n: </td><td><input type="text" name="accept"></td></tr>
+<tr></tr>
+<td><input name="submit" type="submit" value="Submit"></td>
+</table>
+</center>
+</div>
+</div>
+
+</body>
+
+<div class="footer">
+	{% include 'footer.html' %}
+</div>
+<br>
+{{ state }}
+<br>
+
+</html>
