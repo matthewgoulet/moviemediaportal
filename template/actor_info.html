@@ -18,7 +18,12 @@
 <h2>{{ name }}</h2>
 <b>Year of birth: </b> {{ yearofbirth }} <br>
 <b>Place of birth: </b> {{ placeofbirth }} <br>
-
+<b>Movies: </b> - 
+{% for x, y in movies %}
+<a href='{% url rt:movie_info y %}'>{{ x }}</a> - 
+{% endfor %} 
+<br>
+<br>
 {% if perm == "a" %}
 <a href='{% url rt:movie_delete num %}'>Delete TOBEDONE *******************</a>
 {% endif %}

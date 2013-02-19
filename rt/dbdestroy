@@ -1,0 +1,5 @@
+drop table rt_moviestarred;
+drop table rt_movie_suggestion;
+drop table rt_actor_suggestion;
+drop table rt_moviedb;
+drop table rt_actordb;

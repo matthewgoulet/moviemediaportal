@@ -148,7 +148,7 @@ def movie_suggest_confirm(request):
 		pr = request.POST.get('producer')
 		ac = request.POST.get('actor')
 		sy = request.POST.get('synopsis')
-		movie = Movie_Suggestion(title=ti, year=ye, director=di, producer=pr, actors=ac, synopsis=sy, rating=0)
+		movie = Movie_Suggestion(title=ti, year=ye, director=di, producer=pr, actors=ac, synopsis=sy)
 		st1 = str(movie.title)
 		st2 = str(movie.year)
 		st3 = str(movie.director)
@@ -238,18 +238,20 @@ def movie_add_end(request, i):
 				ac = st5.split(', ')
 				#Checks the relational property of Movie-Actor. If the actor is not present, add the actor
 				for i in ac:
+					if len(i) > 0:
+							i = i[0].capitalize() + i[1:]
 					try:
 						ActorDB.objects.get(name=i)
 					except ActorDB.DoesNotExist:
-						if len(i) > 0:
-							i = i[0].capitalize() + i[1:]
-						newActor = ActorDB(name=i, rating=0)
+						newActor = ActorDB(name=i)
 						newActor.save()
-				newMovie = MovieDB(title=st1, year=st2, director=st3, producer=st4, synopsis=st6, rating=0)
+				newMovie = MovieDB(title=st1, year=st2, director=st3, producer=st4, synopsis=st6)
 				newMovie.save()
 				
 				#Adds to the Movie-Actor relational table
 				for i in ac:
+					if len(i) > 0:
+						i = i[0].capitalize() + i[1:]
 					try:
 						addActor = ActorDB.objects.get(name=i)
 						try:
@@ -297,18 +299,19 @@ def movie_info(request, i):
 			actors = []
 			for l in moviesStarred:
 				actors.append(l.aID)
-			for i in actors:
-				actorList.append(i.name)
+			for k in actors:
+				actorList.append(k.name)
 			for j in actorList:
 				try:
 					aid = ActorDB.objects.get(name=j)
 					aIDList.append(aid.id)
 				except ActorDB.DoesNotExist:
 					continue
-			for i in range(len(actors)):
-				aList.append((str(actorList[i]), str(aIDList[i])))
+			for m in range(len(actors)):
+				aList.append((str(actorList[m]), str(aIDList[m])))
 		except MovieStarred.DoesNotExist:
 			state = "Possible problem with the relational database."
+			
 	except MovieDB.DoesNotExist:
 		state = "This movie does not exist in our database."
 	return render(request, 'movie_info.html', {'state':state, 'title':st1, 'year':st2, 'director':st3, 'producer':st4, 'actors':aList, 'synopsis':st6, 'perm':perm, 'num':i, 'uid':uid})
@@ -351,11 +354,9 @@ def movie_delete_confirm(request, i):
 			#Removes from the MovieDB and relational database
 			try:
 				movie = MovieDB.objects.get(id=i)
-				
 				try:
 					marelation = MovieStarred.objects.get(mID=movie)
-					for i in marelation:
-						i.delete()
+					marelation.delete()
 				except MovieStarred.DoesNotExist:
 					state = "Possible problem with the relational database."
 				movie.delete()
@@ -373,6 +374,9 @@ def actor_info(request, i):
 	st1 = st2 = st3 = ''
 	perm = ''
 	uid = 0
+	movieList = []
+	mIDList = []
+	mList = []
 	if 'username' in request.session:
 		uid = request.session['uid']
 		user = User.objects.get(username=request.session['username'])
@@ -381,13 +385,32 @@ def actor_info(request, i):
 		else:
 			perm = 'u'
 	try:
-		movie = ActorDB.objects.get(id=i)
-		st1 = movie.name
-		st2 = movie.placeofbirth
-		st3 = movie.dateofbirth
+		actor = ActorDB.objects.get(id=i)
+		st1 = actor.name
+		st2 = actor.placeofbirth
+		st3 = actor.dateofbirth
+		
+		try:
+			moviesStarred = MovieStarred.objects.filter(aID=actor)
+			movies = []
+			for l in moviesStarred:
+				movies.append(l.mID)
+			for k in movies:
+				movieList.append(k.title)
+			for j in movieList:
+				try:
+					mid = MovieDB.objects.get(title=j)
+					mIDList.append(mid.id)
+				except MovieDB.DoesNotExist:
+					continue
+			for m in range(len(movies)):
+				mList.append((str(movieList[m]), str(mIDList[m])))
+		except MovieStarred.DoesNotExist:
+			state = "Possible problem with the relational database."
+		
 	except ActorDB.DoesNotExist:
 		state = "This actor does not exist in our database."
-	return render(request, 'actor_info.html', {'state':state, 'name':st1, 'placeofbirth':st2, 'dateofbirth':st3, 'perm':perm, 'num':i, 'uid':uid})
+	return render(request, 'actor_info.html', {'state':state, 'name':st1, 'placeofbirth':st2, 'dateofbirth':st3, 'movies':mList, 'perm':perm, 'num':i, 'uid':uid})
 	
 def actor_main(request):
 	state = ''
@@ -431,7 +454,7 @@ def actor_suggest_confirm(request):
 		pl = request.POST.get('placeofbirth')
 		da = request.POST.get('dateofbirth')
 		mo = request.POST.get('movies')
-		actor = Actor_Suggestion(name=na, placeofbirth=pl, dateofbirth=da, movies=mo, rating=0)
+		actor = Actor_Suggestion(name=na, placeofbirth=pl, dateofbirth=da, movies=mo)
 		st1 = str(actor.name)
 		st2 = str(actor.placeofbirth)
 		st3 = str(actor.dateofbirth)
@@ -442,3 +465,108 @@ def actor_suggest_confirm(request):
 		else:
 			state = 'All fields need to be completed.'
 			return render(request, 'error.html', {'state':state})
+			
+def actor_add(request):
+	uid = 0
+	if 'username' in request.session:
+		uid = request.session['uid']
+		user = User.objects.get(username=request.session['username'])
+		if not user.is_staff:
+			state = "You do not have the permissions to add an actor."
+			return render(request, 'perm_denied.html', {'state':state, 'uid':uid})
+	else:
+		state = "You are not logged in."
+		return render(request, 'perm_denied.html', {'state':state, 'uid':uid})
+	actors = Actor_Suggestion.objects.all()
+	li = []
+	for i in actors:
+		li.append(i.name)
+	return render(request, 'actor_add.html', {'actors':li, 'uid':uid})
+	
+def actor_add_confirm(request, i):
+	uid = 0
+	if 'username' in request.session:
+		uid = request.session['uid']
+		user = User.objects.get(username=request.session['username'])
+		if not user.is_staff:
+			state = "You do not have the permissions to add an actor."
+			return render(request, 'perm_denied.html', {'state':state, 'uid':uid})
+	else:
+		state = "You are not logged in."
+		return render(request, 'perm_denied.html', {'state':state, 'uid':uid})
+	state = ''
+	st1 = st2 = st3 = st4 = ''
+	actors = Actor_Suggestion.objects.all()
+	if int(i) > len(actors):
+		state = 'The movie does not exist in the suggestion database anymore.'
+	else:
+		actor = actors[int(i)-1]
+		st1 = str(actor.name)
+		st2 = str(actor.placeofbirth)
+		st3 = str(actor.dateofbirth)
+		st4 = str(actor.movies)
+	return render(request, 'actor_add_confirm.html', {'state':state, 'name':st1, 'placeofbirth':st2, 'dateofbirth':st3, 'movies':st4, 'num':i, 'uid':uid})
+	
+def actor_add_end(request, i):
+	uid = 0
+	if 'username' in request.session:
+		uid = request.session['uid']
+		user = User.objects.get(username=request.session['username'])
+		if not user.is_staff:
+			state = "You do not have the permissions to add an actor."
+			return render(request, 'perm_denied.html', {'state':state, 'uid':uid})
+	else:
+		state = "You are not logged in."
+		return render(request, 'perm_denied.html', {'state':state, 'uid':uid})
+	state = ''
+	st1 = ''
+	if request.POST:
+		num = int(i)
+		li = Actor_Suggestion.objects.all()
+		confirm = request.POST.get('accept')
+		actor = li[num-1]
+		st1 = str(actor.name)
+		st2 = str(actor.placeofbirth)
+		st3 = str(actor.dateofbirth)
+		st4 = str(actor.movies)
+		if confirm == 'y' or confirm == 'yes':
+			#Checks if the actor is already in the database
+			try:
+				ActorDB.objects.get(name=st1)
+				state = "The actor is already in the database. The suggestion will be deleted. Please edit the current actor."
+			except ActorDB.DoesNotExist:
+				mo = st4.split(', ')
+				#Checks the relational property of Movie-Actor. If the actor is not present, add the movie
+				for i in mo:
+					if len(i) > 0:
+							i = i[0].capitalize() + i[1:]
+					try:
+						MovieDB.objects.get(title=i)
+					except MovieDB.DoesNotExist:
+						newMovie = MovieDB(title=i, year=0)
+						newMovie.save()
+				newActor = ActorDB(name=st1, placeofbirth=st2, dateofbirth=st3)
+				newActor.save()
+				
+				#Adds to the Movie-Actor relational table
+				for i in mo:
+					if len(i) > 0:
+						i = i[0].capitalize() + i[1:]
+					try:
+						addMovie = MovieDB.objects.get(title=i)
+						try:
+							MovieStarred.objects.get(mID=addMovie, aID=newActor)
+						except MovieStarred.DoesNotExist:
+							newMARelation = MovieStarred(mID=addMovie, aID=newActor)
+							newMARelation.save()
+					except ActorDB.DoesNotExist:
+						continue
+				
+				state = "The actor has been successfully added to the database."
+			actor.delete()
+		elif confirm == 'n' or confirm == 'no':
+			actor.delete()
+			state = "The addition of this actor has been refused."
+		else:
+			state = "No changes have been made. Please answer correctly 'yes' or 'no' in the previous page."
+	return render(request, 'actor_add_end.html', {'state':state, 'name':st1, 'uid':uid})

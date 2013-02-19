@@ -4,7 +4,7 @@ from rt.models import Movie_Suggestion, MovieDB, Actor_Suggestion, ActorDB, Movi
 class UserAdmin(admin.ModelAdmin):
 	fieldsets = [
 		('Title', {'fields': ['title', 'year']}),
-		('Other information', {'fields': ['director', 'producer', 'synopsis', 'rating'], 'classes': ['collapse']}),]
+		('Other information', {'fields': ['director', 'producer', 'synopsis'], 'classes': ['collapse']}),]
 
 admin.site.register(Movie_Suggestion, UserAdmin)
 admin.site.register(MovieDB, UserAdmin)

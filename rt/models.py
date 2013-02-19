@@ -7,7 +7,6 @@ class Movie_Suggestion(models.Model):
 	producer = models.CharField('Producer', max_length=50)
 	actors = models.CharField('Actors', max_length=200)
 	synopsis = models.CharField('Synopsis', max_length=5000)
-	rating = models.IntegerField('Rating')
 
 	def __unicode__(self):
 		return self.title
@@ -18,7 +17,6 @@ class MovieDB(models.Model):
 	director = models.CharField('Director', max_length=50)
 	producer = models.CharField('Producer', max_length=50)
 	synopsis = models.CharField('Synopsis', max_length=5000)
-	rating = models.IntegerField('Rating')
 
 	def __unicode__(self):
 		return self.title
@@ -27,7 +25,6 @@ class Actor_Suggestion(models.Model):
 	name = models.CharField('Name', max_length=100)
 	placeofbirth = models.CharField('Place of birth', max_length=100)
 	dateofbirth = models.CharField('Date of birth', max_length=10)
-	rating = models.IntegerField('Rating')
 	movies = models.CharField('Movies', max_length=500)
 	
 	def __unicode__(self):
@@ -37,7 +34,6 @@ class ActorDB(models.Model):
 	name = models.CharField('Name', max_length=100)
 	placeofbirth = models.CharField('Place of birth', max_length=100)
 	dateofbirth = models.CharField('Date of birth', max_length=10)
-	rating = models.IntegerField('Rating')
 	
 	def __unicode__(self):
 		return self.name
