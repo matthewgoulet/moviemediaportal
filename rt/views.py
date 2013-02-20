@@ -610,7 +610,7 @@ def actor_delete_confirm(request, i):
 			try:
 				actor = ActorDB.objects.get(id=i)
 				try:
-					marelation = MovieStarred.objects.get(aID=actor)
+					marelation = MovieStarred.objects.filter(aID=actor)
 					marelation.delete()
 				except MovieStarred.DoesNotExist:
 					state = "Possible problem with the relational database."
@@ -623,3 +623,122 @@ def actor_delete_confirm(request, i):
 		else:
 			state = "No changes have been made. Please answer correctly in the previous page with 'yes' or 'no'."
 	return render(request, 'actor_delete_confirm.html', {'state':state, 'uid':uid})
+
+def movie_search(request):
+	state = ''
+	return render(request, 'movie_search.html', {'state':state})
+	
+def movie_search_result(request):
+	state = ''
+	ids = []
+	if request.POST:
+		ti = request.POST.get('title')
+		if len(ti) > 0:
+			ti = ti[0].capitalize() + ti[1:]
+		ye = request.POST.get('year')
+		di = request.POST.get('director')
+		pr = request.POST.get('producer')
+		ac = request.POST.get('actor')
+		sy = request.POST.get('synopsis')
+		
+		movies = MovieDB.objects.filter(title__icontains=ti).filter(year__contains=ye).filter(director__icontains=di).filter(producer__icontains=pr).filter(synopsis__icontains=sy)
+		
+		if ac == '':
+			titles = helper.sort_title(movies)
+			ids = helper.sort_id(movies, titles)
+			return render(request, 'movie_search_result.html', {'state':state, 'ids':ids})
+		else:
+			actors = ac.split(', ')
+			movies_relation = []
+			for i in actors:
+				if len(i) > 0:
+					i = i[0].capitalize() + i[1:]
+				try:
+					actor_id = ActorDB.objects.get(name__iexact=i).id
+				except ActorDB.DoesNotExist:
+					actor_id = 0
+				actor_rel = MovieStarred.objects.filter(aID=actor_id)
+				for i in actor_rel:
+					movies_relation.append(i.mID)
+			movies_relation = list(set(movies_relation))
+		
+		#Gets a set of movie IDs that correspond to the search	
+		movies_id = set()
+		movies_rel_id = set()
+		for i in movies:
+			movies_id.add(i.id)
+		for i in movies_relation:
+			movies_rel_id.add(i.id)
+		movieID_list = movies_id & movies_rel_id
+		
+		#Gets a list of Movie objects that correspond to the search
+		movie_list = []
+		for i in movieID_list:
+			try:
+				movie = MovieDB.objects.get(id=i)
+				movie_list.append(movie)
+			except MovieDB.DoesNotExist:
+				continue
+		
+		titles = helper.sort_title(movie_list)
+		ids = helper.sort_id(movie_list, titles)
+		return render(request, 'movie_search_result.html', {'state':state, 'ids':ids})
+		
+def actor_search(request):
+	state = ''
+	return render(request, 'actor_search.html', {'state':state})
+	
+def actor_search_result(request):
+	state = ''
+	ids = []
+	if request.POST:
+		na = request.POST.get('name')
+		if len(na) > 0:
+			na = na[0].capitalize() + na[1:]
+		pl = request.POST.get('placeofbirth')
+		da = request.POST.get('dateofbirth')
+		mo = request.POST.get('movies')
+		
+		actors = ActorDB.objects.filter(name__icontains=na).filter(placeofbirth__icontains=pl).filter(dateofbirth__icontains=da)
+		
+		#Does the search on ActorDB
+		if mo == '':
+			names = helper.sort_name(actors)
+			ids = helper.sort_actor_id(actors, names)
+			return render(request, 'actor_search_result.html', {'state':state, 'ids':ids})
+		else:
+			movies = mo.split(', ')
+			actors_relation = []
+			for i in movies:
+				if len(i) > 0:
+					i = i[0].capitalize() + i[1:]
+				try:
+					movie_id = MovieDB.objects.get(title__iexact=i).id
+				except MovieDB.DoesNotExist:
+					movie_id = 0
+				movie_rel = MovieStarred.objects.filter(mID=movie_id)
+				for i in movie_rel:
+					actors_relation.append(i.aID)
+			actors_relation = list(set(actors_relation))
+		
+		#Gets a set of actor IDs that correspond to the search	
+		actors_id = set()
+		actors_rel_id = set()
+		for i in actors:
+			actors_id.add(i.id)
+		for i in actors_relation:
+			actors_rel_id.add(i.id)
+		actorID_list = actors_id & actors_rel_id
+		
+		#Gets a list of Movie objects that correspond to the search
+		actor_list = []
+		for i in actorID_list:
+			try:
+				actor = ActorDB.objects.get(id=i)
+				actor_list.append(actor)
+			except ActorDB.DoesNotExist:
+				continue
+		
+		names = helper.sort_name(actor_list)
+		ids = helper.sort_actor_id(actor_list, names)
+		return render(request, 'actor_search_result.html', {'state':state, 'ids':ids})
