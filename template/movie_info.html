@@ -15,6 +15,10 @@
 </div><!--ends header-->
 
 <div class="notheader">
+{% if perm != "" %}
+<a href='{% url rt:movie_edit_suggest num %}'>Edit this movie</a>
+<br>
+{% endif %}
 <h2>{{ title }}</h2>
 <b>Year: </b> {{ year }} <br>
 <b>Director: </b> {{ director }} <br>

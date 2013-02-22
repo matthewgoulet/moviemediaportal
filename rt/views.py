@@ -5,7 +5,7 @@ from django.shortcuts import render
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
 
-from rt.models import Movie_Suggestion, MovieDB, ActorDB, MovieStarred, Actor_Suggestion
+from rt.models import Movie_Suggestion, MovieDB, ActorDB, MovieStarred, Actor_Suggestion, Movie_Edit
 
 def index(request):
 	state = 'Not logged in.'
@@ -742,3 +742,94 @@ def actor_search_result(request):
 		names = helper.sort_name(actor_list)
 		ids = helper.sort_actor_id(actor_list, names)
 		return render(request, 'actor_search_result.html', {'state':state, 'ids':ids})
+		
+def movie_edit_suggest(request, i):
+	state = ''
+	st1 = st2 = st3 = st4 = st5 = st6 = ''
+	perm = ''
+	uid = 0
+	actorList = []
+	aIDList = []
+	aList = []
+	if 'username' in request.session:
+		uid = request.session['uid']
+		user = User.objects.get(username=request.session['username'])
+		if user.is_staff:
+			perm = 'a'
+		else:
+			perm = 'u'
+	try:
+		movie = MovieDB.objects.get(id=i)
+		st1 = movie.title
+		st2 = movie.year
+		st3 = movie.director
+		st4 = movie.producer
+		st6 = movie.synopsis
+		
+		#Makes a string of all the actors
+		try:
+			moviesStarred = MovieStarred.objects.filter(mID=movie)
+			actors = ''
+			for ac in moviesStarred:
+				actors = actors + str(ac.aID.name) + ', '
+			if len(actors) > 2:
+				actors = actors[:-2]
+		except MovieStarred.DoesNotExist:
+			state = "This movie doesn't have any actors associated to it."
+			
+	except MovieDB.DoesNotExist:
+		state = "This movie does not exist in our database."
+	return render(request, 'movie_edit_suggest.html', {'state':state, 'title':st1, 'year':st2, 'director':st3, 'producer':st4, 'actors':actors, 'synopsis':st6, 'perm':perm, 'num':i, 'uid':uid})
+	
+def movie_edit_suggest_confirm(request, i):
+	st1 = st2 = st3 = st4 = st5 = st6 = ''
+	uid = 0
+	if not 'username' in request.session:
+		state = "You do not have the permissions to suggest a movie."
+		return render(request, 'perm_denied.html', {'state':state, 'uid':uid})
+	else:
+		uid = request.session['uid']
+	if request.POST:
+		ye = request.POST.get('year')
+		di = request.POST.get('director')
+		pr = request.POST.get('producer')
+		ac = request.POST.get('actor')
+		sy = request.POST.get('synopsis')
+		
+		try:
+			oldMovie = MovieDB.objects.get(id=i)
+			oldTi = str(oldMovie.title)
+			oldYe = str(oldMovie.year)
+			oldDi = str(oldMovie.director)
+			oldPr = str(oldMovie.producer)
+			oldSy = str(oldMovie.synopsis)
+			
+			movie = Movie_Edit(title=oldTi, year=ye, director=di, producer=pr, actors=ac, synopsis=sy)
+			st2 = str(movie.year)
+			st3 = str(movie.director)
+			st4 = str(movie.producer)
+			st5 = str(movie.actors)
+			st6 = str(movie.synopsis)
+			
+			try:
+				moviesStarred = MovieStarred.objects.filter(mID=oldMovie)
+				actors = ''
+				for ac in moviesStarred:
+					actors = actors + str(ac.aID.name) + ', '
+				if len(actors) > 2:
+					actors = actors[:-2]
+			except MovieStarred.DoesNotExist:
+				state = "This movie doesn't have any actors associated to it."
+				
+			if(st2 == oldYe and st3 == oldDi and st4 == oldPr and st5 == actors and st6 == oldSy):
+				state = 'No modifications has been made for this movie.'
+				return render(request, 'error.html', { 'state':state})
+			
+		except MovieDB.DoesNotExist:
+			state = 'Could not find movie in the database.'
+		if not ye == '' and not di == '' and not pr == '' and not ac == '' and not sy == '':
+			movie.save()
+			return render(request, 'movie_edit_suggest_confirm.html', {'title':oldTi, 'year':st2, 'director':st3, 'producer':st4, 'actors':st5, 'synopsis':st6, 'oldYear':oldYe, 'oldDirector':oldDi, 'oldProducer':oldPr, 'oldSynopsis':oldSy, 'oldActors':actors, 'uid':uid})
+		else:
+			state = 'All fields need to be completed.'
+			return render(request, 'error.html', {'state':state})

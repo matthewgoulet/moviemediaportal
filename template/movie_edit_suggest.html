@@ -1,0 +1,45 @@
+<html>
+<title>Movie Edit - {{ title }}</title>
+
+<head>
+<link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}style.css">
+<link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}form-style.css">
+
+</head>
+
+<body>
+<div class="column">
+
+<div class="headerheader">
+	{% include 'navigation.html' %}
+</div><!--ends header-->
+
+<div class="notheader">
+<center>
+<h1> Edit - {{ title }}</h1>
+<body>
+<form action="{% url rt:movie_edit_suggest_confirm num %}" method="post"> {% csrf_token %}
+<table class="moviesuggest-table">
+<tr><td>Year: </td><td><input type="text" name="year" value="{{ year }}"></td></tr>
+<tr><td>Director: </td><td><input type="text" name="director" value="{{ director }}"></td></tr>
+<tr><td>Producer: </td><td><input type="text" name="producer" value="{{ producer }}"></td></tr>
+<tr><td>Actors: </td><td><input type="text" name="actor" value="{{ actors }}"></td></tr>
+<tr><td>Synopsis: </td><td><input type="text" name="synopsis" value="{{ synopsis }}"></td></tr>
+<tr></tr>
+<td><input name="submit" type="submit" value="Submit"></td>
+</table>
+<br>
+<b>{{ state }}</b>
+</form>
+</center>
+</div>
+
+{{ state }}
+
+</div> <!-- ends column -->
+
+<div class="footer">
+	{% include 'footer.html' %}
+</div>
+</body>
+</html> 
