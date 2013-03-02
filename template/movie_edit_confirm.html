@@ -1,0 +1,43 @@
+<html>
+<title>Edit movie Confirmation</title>
+
+<head>
+<link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}style.css">
+<link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}form-style.css">
+
+</head>
+
+<body>
+<div class="column">
+
+<div class="headerheader">
+	{% include 'navigation.html' %}
+</div><!--ends header-->
+
+<div class="notheader">
+<center>
+<h1>Edit movie - {{ title }}</h1>
+<form action="{% url rt:movie_add_end num %}" method="post"> {% csrf_token %}
+<table class="movieadd-table">
+<tr><td>Year: </td><td><input type="text" name="year" value = "{{ year }}"></td></tr>
+<tr><td>Director: </td><td><input type="text" name="director" value="{{ director }}"></td></tr>
+<tr><td>Producer: </td><td><input type="text" name="producer" value="{{ producer }}"></td></tr>
+<tr><td>Actors: </td><td><input type="text" name="actor" value="{{ actors }}"></td></tr>
+<tr><td>Synopsis: </td><td><input type="text" name="synopsis" value="{{ synopsis }}"></td></tr>
+<tr></tr>
+<tr><td>y/n: </td><td><input type="text" name="accept"></td></tr>
+<tr></tr>
+<td><input name="submit" type="submit" value="Submit"></td>
+</table>
+<br>
+<b>{{ state }}</b>
+</center>
+</div>
+
+</div> <!-- ends column -->
+
+<div class="footer">
+	{% include 'footer.html' %}
+</div>
+</body>
+</html> 
