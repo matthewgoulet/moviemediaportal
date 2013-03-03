@@ -118,6 +118,8 @@ def movie_main(request):
 			perm = 'a'
 		else:
 			perm = 'u'
+	if len(ids) == 0:
+		state = "No movies found in the database."
 	return render(request, 'movie_main.html', {'state':state, 'perm':perm, 'ids':ids, 'uid':uid})
 
 def movie_suggest(request):
@@ -426,6 +428,8 @@ def actor_main(request):
 			perm = 'a'
 		else:
 			perm = 'u'
+	if len(ids) == 0:
+		state = 'No actors have been found in the database.'
 	return render(request, 'actor_main.html', {'state':state, 'perm':perm, 'ids':ids, 'uid':uid})
 	
 def actor_suggest(request):
@@ -646,6 +650,8 @@ def movie_search_result(request):
 		if ac == '':
 			titles = helper.sort_title(movies)
 			ids = helper.sort_id(movies, titles)
+			if len(ids) == 0:
+				state = "No movies have been found to match the input specifications."
 			return render(request, 'movie_search_result.html', {'state':state, 'ids':ids})
 		else:
 			actors = ac.split(', ')
@@ -682,6 +688,8 @@ def movie_search_result(request):
 		
 		titles = helper.sort_title(movie_list)
 		ids = helper.sort_id(movie_list, titles)
+		if len(ids) == 0:
+			state = "No movies have been found to match the input specifications."
 		return render(request, 'movie_search_result.html', {'state':state, 'ids':ids})
 		
 def actor_search(request):
@@ -705,6 +713,8 @@ def actor_search_result(request):
 		if mo == '':
 			names = helper.sort_name(actors)
 			ids = helper.sort_actor_id(actors, names)
+			if len(ids) == 0:
+				state = "No actors have been found to match the input specifications."
 			return render(request, 'actor_search_result.html', {'state':state, 'ids':ids})
 		else:
 			movies = mo.split(', ')
@@ -741,6 +751,8 @@ def actor_search_result(request):
 		
 		names = helper.sort_name(actor_list)
 		ids = helper.sort_actor_id(actor_list, names)
+		if len(ids) == 0:
+			state = "No actors have been found to match the input specifications."
 		return render(request, 'actor_search_result.html', {'state':state, 'ids':ids})
 		
 def movie_edit_suggest(request, i):
