@@ -463,6 +463,16 @@ def actor_suggest_confirm(request):
 		st2 = str(actor.placeofbirth)
 		st3 = str(actor.dateofbirth)
 		st4 = str(actor.movies)
+		if not len(st3.split('-')) == 3:
+			state = 'Invalid date during the creation of the actor profile. (MM-dd-YY)'
+			return render(request, 'error.html', {'state':state})
+		else:
+			for i in st3.split('-'):
+				try:
+					int(i)
+				except ValueError:
+					state = 'Invalid date during the creation of the actor profile. (MM-dd-YY)'	
+					return render(request, 'error.html', {'state':state})
 		if not na == '' and not pl == '' and not da == '' and not mo == '':
 			actor.save()
 			return render(request, 'actor_suggest_confirm.html', {'name':st1, 'placeofbirth':st2, 'dateofbirth':st3, 'movies':st4, 'uid':uid})
@@ -889,7 +899,7 @@ def movie_edit_confirm(request, i):
                 st6 = str(movie.synopsis)
         return render(request, 'movie_edit_confirm.html', {'state':state, 'title':st1, 'year':st2, 'director':st3, 'producer':st4, 'actors':st5, 'synopsis':st6, 'num':i, 'uid':uid})
 
-def movie_add_end(request, i):
+def movie_edit_end(request, i):
 	uid = 0
 	if 'username' in request.session:
 		uid = request.session['uid']
