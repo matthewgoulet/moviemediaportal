@@ -3,7 +3,16 @@
 <h1>An error has occured.</h1>
 <body>
 {{ state }}
+
+{% if state == "All fields must be properly filled during registration." %}
+<meta http-equiv="REFRESH" content='4; url= {% url rt:register %}'></head>
+{% elif state == "All fields need to be completed when suggesting a movie." %}
+<meta http-equiv="REFRESH" content='4; url= {% url rt:movie_suggest %}'></head>
+{% elif state == "All fields need to be completed when suggesting an actor." %}
+<meta http-equiv="REFRESH" content='4; url= {% url rt:actor_suggest %}'></head>
+{% else %}
 <meta http-equiv="REFRESH" content='4; url= {% url rt:index %}'></head>
+{% endif %}
 </body>
 </head>
 </html> 

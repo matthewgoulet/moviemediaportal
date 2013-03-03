@@ -89,8 +89,8 @@ def register_confirm(request):
 		username = request.POST.get('username')
 		password = request.POST.get('password')
 		cpassword = request.POST.get('confirmPassword')
-		if str(fname) == '' or str(lname) == '' or str(email) == '' or str(username) == '' or str(password) == '' or str(cpassword) == '':
-			state = "A field is incomplete."
+		if str(fname) == '' or str(lname) == '' or str(email) == '' or str(username) == '' or str(password) == '' or str(cpassword) == '' or not '@' in str(email):
+			state = "All fields must be properly filled during registration."
 			return render(request, 'error.html', {'state':state})
 		elif helper.user_present(username):
 			state = 'The username ' + username + ' is already taken. Please choose another one.'
@@ -118,6 +118,8 @@ def movie_main(request):
 			perm = 'a'
 		else:
 			perm = 'u'
+	if len(ids) == 0:
+		state = "No movies found in the database."
 	return render(request, 'movie_main.html', {'state':state, 'perm':perm, 'ids':ids, 'uid':uid})
 
 def movie_suggest(request):
@@ -159,7 +161,7 @@ def movie_suggest_confirm(request):
 			movie.save()
 			return render(request, 'movie_suggest_confirm.html', {'title':st1, 'year':st2, 'director':st3, 'producer':st4, 'actors':st5, 'synopsis':st6, 'uid':uid})
 		else:
-			state = 'All fields need to be completed.'
+			state = 'All fields need to be completed when suggesting a movie.'
 			return render(request, 'error.html', {'state':state})
 
 def movie_add(request):
@@ -426,6 +428,8 @@ def actor_main(request):
 			perm = 'a'
 		else:
 			perm = 'u'
+	if len(ids) == 0:
+		state = 'No actors have been found in the database.'
 	return render(request, 'actor_main.html', {'state':state, 'perm':perm, 'ids':ids, 'uid':uid})
 	
 def actor_suggest(request):
@@ -463,7 +467,7 @@ def actor_suggest_confirm(request):
 			actor.save()
 			return render(request, 'actor_suggest_confirm.html', {'name':st1, 'placeofbirth':st2, 'dateofbirth':st3, 'movies':st4, 'uid':uid})
 		else:
-			state = 'All fields need to be completed.'
+			state = 'All fields need to be completed when suggesting an actor.'
 			return render(request, 'error.html', {'state':state})
 			
 def actor_add(request):
@@ -646,6 +650,8 @@ def movie_search_result(request):
 		if ac == '':
 			titles = helper.sort_title(movies)
 			ids = helper.sort_id(movies, titles)
+			if len(ids) == 0:
+				state = "No movies have been found to match the input specifications."
 			return render(request, 'movie_search_result.html', {'state':state, 'ids':ids})
 		else:
 			actors = ac.split(', ')
@@ -682,6 +688,8 @@ def movie_search_result(request):
 		
 		titles = helper.sort_title(movie_list)
 		ids = helper.sort_id(movie_list, titles)
+		if len(ids) == 0:
+			state = "No movies have been found to match the input specifications."
 		return render(request, 'movie_search_result.html', {'state':state, 'ids':ids})
 		
 def actor_search(request):
@@ -705,6 +713,8 @@ def actor_search_result(request):
 		if mo == '':
 			names = helper.sort_name(actors)
 			ids = helper.sort_actor_id(actors, names)
+			if len(ids) == 0:
+				state = "No actors have been found to match the input specifications."
 			return render(request, 'actor_search_result.html', {'state':state, 'ids':ids})
 		else:
 			movies = mo.split(', ')
@@ -741,6 +751,8 @@ def actor_search_result(request):
 		
 		names = helper.sort_name(actor_list)
 		ids = helper.sort_actor_id(actor_list, names)
+		if len(ids) == 0:
+			state = "No actors have been found to match the input specifications."
 		return render(request, 'actor_search_result.html', {'state':state, 'ids':ids})
 		
 def movie_edit_suggest(request, i):
@@ -833,3 +845,113 @@ def movie_edit_suggest_confirm(request, i):
 		else:
 			state = 'All fields need to be completed.'
 			return render(request, 'error.html', {'state':state})
+			
+def movie_edit(request):
+	uid = 0
+        if 'username' in request.session:
+                uid = request.session['uid']
+                user = User.objects.get(username=request.session['username'])
+                if not user.is_staff:
+                        state = "You do not have the permissions to edit a movie."
+                        return render(request, 'perm_denied.html', {'state':state, 'uid':uid})
+        else:
+                state = "You are not logged in."
+                return render(request, 'perm_denied.html', {'state':state, 'uid':uid})
+        movies = Movie_Edit.objects.all()
+        li = []
+        for i in movies:
+                li.append(i.title)
+        return render(request, 'movie_edit.html', {'movies':li, 'uid':uid})
+
+def movie_edit_confirm(request, i):
+        uid = 0
+        if 'username' in request.session:
+                uid = request.session['uid']
+                user = User.objects.get(username=request.session['username'])
+                if not user.is_staff:
+                        state = "You do not have the permissions to add a movie."
+                        return render(request, 'perm_denied.html', {'state':state, 'uid':uid})
+        else:
+                state = "You are not logged in."
+                return render(request, 'perm_denied.html', {'state':state, 'uid':uid})
+        state = ''
+        st1 = st2 = st3 = st4 = st5 = st6 = ''
+        movies = Movie_Edit.objects.all()
+        if int(i) > len(movies):
+                state = 'The movie does not exist in the edit database anymore.'
+        else:
+                movie = movies[int(i)-1]
+                st1 = str(movie.title)
+                st2 = str(movie.year)
+                st3 = str(movie.director)
+                st4 = str(movie.producer)
+                st5 = str(movie.actors)
+                st6 = str(movie.synopsis)
+        return render(request, 'movie_edit_confirm.html', {'state':state, 'title':st1, 'year':st2, 'director':st3, 'producer':st4, 'actors':st5, 'synopsis':st6, 'num':i, 'uid':uid})
+
+def movie_add_end(request, i):
+	uid = 0
+	if 'username' in request.session:
+		uid = request.session['uid']
+		user = User.objects.get(username=request.session['username'])
+		if not user.is_staff:
+			state = "You do not have the permissions to add a movie."
+			return render(request, 'perm_denied.html', {'state':state, 'uid':uid})
+	else:
+		state = "You are not logged in."
+		return render(request, 'perm_denied.html', {'state':state, 'uid':uid})
+	state = ''
+	st1 = ''
+	if request.POST:
+		num = int(i)
+		li = Movie_Suggestion.objects.all()
+		confirm = request.POST.get('accept')
+		movie = li[num-1]
+		st2 = request.POST.get('year')
+                st3 = request.POST.get('director')
+                st4 = request.POST.get('producer')
+                st5 = request.POST.get('actor')
+                st6 = request.POST.get('synopsis')
+
+		if confirm == 'y' or confirm == 'yes':
+			#Checks if the movie is already in the database
+			try:
+				MovieDB.objects.get(movie.title)
+				### HIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII ******** TODO
+				ac = st5.split(', ')
+				#Checks the relational property of Movie-Actor. If the actor is not present, add the actor
+				for i in ac:
+					if len(i) > 0:
+							i = i[0].capitalize() + i[1:]
+					try:
+						ActorDB.objects.get(name=i)
+					except ActorDB.DoesNotExist:
+						newActor = ActorDB(name=i)
+						newActor.save()
+				newMovie = MovieDB(title=st1, year=st2, director=st3, producer=st4, synopsis=st6)
+				newMovie.save()
+				
+				#Adds to the Movie-Actor relational table
+				for i in ac:
+					if len(i) > 0:
+						i = i[0].capitalize() + i[1:]
+					try:
+						addActor = ActorDB.objects.get(name=i)
+						try:
+							MovieStarred.objects.get(mID=newMovie, aID=addActor)
+						except MovieStarred.DoesNotExist:
+							newMARelation = MovieStarred(mID=newMovie, aID=addActor)
+							newMARelation.save()
+					except ActorDB.DoesNotExist:
+						continue
+				
+				state = "The movie has been successfully added to the database."
+			except MovieDB.DoesNotExist:
+				state = "The movie isn't in the database. The edit suggestion will be deleted."
+			movie.delete()
+		elif confirm == 'n' or confirm == 'no':
+			movie.delete()
+			state = "The addition of this movie has been refused."
+		else:
+			state = "No changes have been made. Please answer correctly 'yes' or 'no' in the previous page."
+	return render(request, 'movie_add_end.html', {'state':state, 'title':st1, 'uid':uid})
