@@ -965,3 +965,26 @@ def movie_edit_end(request, i):
 		else:
 			state = "No changes have been made. Please answer correctly 'yes' or 'no' in the previous page."
 	return render(request, 'movie_add_end.html', {'state':state, 'title':st1, 'uid':uid})
+
+def navigation_search(request):
+	state = ''
+	typ = ''
+	if request.POST:
+		search = str(request.POST.get('search'))
+		typ = str(request.POST.get('type'))
+
+		if typ == 'movies':
+			movies = MovieDB.objects.filter(title__icontains=search)
+			titles = helper.sort_title(movies)
+                        ids = helper.sort_id(movies, titles)
+                        if len(ids) == 0:
+                                state = "No movies have been found to match the input specifications."
+                        return render(request, 'navigation_search.html', {'state':state, 'ids':ids, 'typ':typ})
+		elif typ == 'actors':
+			actors = ActorDB.objects.filter(name__icontains=search)
+			names = helper.sort_name(actors)
+                        ids = helper.sort_actor_id(actors, names)
+                        if len(ids) == 0:
+                                state = "No actors have been found to match the input specifications."
+                        return render(request, 'navigation_search.html', {'state':state, 'ids':ids, 'typ':typ})
+	return render(request, 'navigation_search.html', {'state':state, 'ids':ids, 'typ':typ})
