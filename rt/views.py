@@ -405,6 +405,7 @@ def actor_info(request, i):
 	mIDList = []
 	mList = []
 	rating = 0
+	rat = 0
 	if 'username' in request.session:
 		uid = request.session['uid']
 		user = User.objects.get(username=request.session['username'])
@@ -417,7 +418,19 @@ def actor_info(request, i):
 		st1 = actor.name
 		st2 = actor.placeofbirth
 		st3 = actor.dateofbirth
-		
+	
+		if request.POST:
+                        if not request.POST.get('rating') == None:
+                                rat = int(request.POST.get('rating'))
+                        if rat > 0 and rat < 6:
+                                try:
+                                        userRating = ActorRating.objects.get(username=request.session['username'], aID=actor)
+                                        userRating.rating = rat
+                                        userRating.save()
+                                except ActorRating.DoesNotExist:
+                                        userRating = ActorRating(username=request.session['username'], aID=actor, rating=rat)
+                                        userRating.save()
+	
 		try:
 			moviesStarred = MovieStarred.objects.filter(aID=actor)
 			movies = []
@@ -439,10 +452,10 @@ def actor_info(request, i):
 		try:
                         actorRatings = ActorRating.objects.filter(aID=actor)
                         totalRating = 0
-                        for i in actorRatings:
-                                totalRating = totalRating + i.rating
+                        for j in actorRatings:
+                                totalRating = totalRating + j.rating
                         if len(actorRatings) > 0:
-                                rating = float(totalRating / len(actorRatings))
+                                rating = float(totalRating) / float(len(actorRatings))
                 except MovieRating.DoesNotExist:
                         rating = 0
 	
