@@ -30,6 +30,21 @@
 {% if perm == "a" %}
 <a href='{% url rt:actor_delete num %}'>Delete</a>
 {% endif %}
+
+<center>
+<div class="rating">
+<form action="{% url rt:actor_info num %}" method="post"> {% csrf_token %}
+<span>☆ 5</span><input type="radio" name="rating" value="5">
+<span>☆ 4</span><input type="radio" name="rating" value="4">
+<span>☆ 3</span><input type="radio" name="rating" value="3">
+<span>☆ 2</span><input type="radio" name="rating" value="2">
+<span>☆ 1</span><input type="radio" name="rating" value="1">
+<tr></tr>
+<td><input name="submit" type="submit" value="Rate"></td>
+</form>
+</div>
+</center>
+
 </div>
 
 </div> <!-- ends column -->
