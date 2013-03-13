@@ -455,8 +455,8 @@ def actor_info(request, i):
                         for j in actorRatings:
                                 totalRating = totalRating + j.rating
                         if len(actorRatings) > 0:
-                                rating = float(totalRating) / float(len(actorRatings))
-                except MovieRating.DoesNotExist:
+                                rating = float(float(totalRating) / float(len(actorRatings)))
+                except ActorRating.DoesNotExist:
                         rating = 0
 	
 	except ActorDB.DoesNotExist:
@@ -513,7 +513,7 @@ def actor_suggest_confirm(request):
 		st3 = str(actor.dateofbirth)
 		st4 = str(actor.movies)
 		if not len(st3.split('-')) == 3:
-			state = 'Invalid date during the creation of the actor profile. (MM-dd-YY)'
+			state = 'Invalid date during the creation of the actor profile. (MM-dd-YYYY)'
 			return render(request, 'error.html', {'state':state})
 		else:
 			for i in st3.split('-'):
@@ -522,6 +522,9 @@ def actor_suggest_confirm(request):
 				except ValueError:
 					state = 'Invalid date during the creation of the actor profile. (MM-dd-YY)'	
 					return render(request, 'error.html', {'state':state})
+		if int(st3.split('-')[0]) < 0 or int(st3.split('-')[1]) < 0 or int(st3.split('-')[2]) < 0 or int(st3.split('-')[0]) > 12 or int(st3.split('-')[1]) > 31:
+			state = 'Invalid date during the creation of the actor profile. (MM-dd-YYYY)'
+                        return render(request, 'error.html', {'state':state})
 		if not na == '' and not pl == '' and not da == '' and not mo == '':
 			actor.save()
 			return render(request, 'actor_suggest_confirm.html', {'name':st1, 'placeofbirth':st2, 'dateofbirth':st3, 'movies':st4, 'uid':uid})
