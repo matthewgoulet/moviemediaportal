@@ -4,6 +4,7 @@ from django.http import HttpResponse
 from django.shortcuts import render
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
+from django.forms.widgets import RadioSelect
 
 from rt.models import Movie_Suggestion, MovieDB, ActorDB, MovieStarred, Actor_Suggestion, Movie_Edit, MovieRating, ActorRating
 
@@ -282,6 +283,7 @@ def movie_info(request, i):
 	aIDList = []
 	aList = []
 	rating = 0
+	rat = 0
 	if 'username' in request.session:
 		uid = request.session['uid']
 		user = User.objects.get(username=request.session['username'])
@@ -289,6 +291,7 @@ def movie_info(request, i):
 			perm = 'a'
 		else:
 			perm = 'u'
+
 	try:
 		movie = MovieDB.objects.get(id=i)
 		st1 = movie.title
@@ -296,7 +299,19 @@ def movie_info(request, i):
 		st3 = movie.director
 		st4 = movie.producer
 		st6 = movie.synopsis
-		
+
+		if request.POST:
+			if not request.POST.get('rating') == None:
+				rat = int(request.POST.get('rating'))
+			if rat > 0 and rat < 6:
+				try:
+					userRating = MovieRating.objects.get(username=request.session['username'], mID=movie)
+					userRating.rating = rat
+					userRating.save()
+				except MovieRating.DoesNotExist:
+					userRating = MovieRating(username=request.session['username'], mID=movie, rating=rat)
+					userRating.save()
+	
 		try:
 			moviesStarred = MovieStarred.objects.filter(mID=movie)
 			actors = []
@@ -318,10 +333,10 @@ def movie_info(request, i):
 		try:
 			movieRatings = MovieRating.objects.filter(mID=movie)
 			totalRating = 0
-			for i in movieRatings:
-				totalRating = totalRating + i.rating
+			for j in movieRatings:
+				totalRating = totalRating + j.rating
 			if len(movieRatings) > 0:
-				rating = float(totalRating / len(movieRatings)) 
+				rating = float(totalRating) / float(len(movieRatings)) 
 		except MovieRating.DoesNotExist:
 			rating = 0	
 	except MovieDB.DoesNotExist:
@@ -389,6 +404,7 @@ def actor_info(request, i):
 	movieList = []
 	mIDList = []
 	mList = []
+	rating = 0
 	if 'username' in request.session:
 		uid = request.session['uid']
 		user = User.objects.get(username=request.session['username'])
@@ -419,10 +435,20 @@ def actor_info(request, i):
 				mList.append((str(movieList[m]), str(mIDList[m])))
 		except MovieStarred.DoesNotExist:
 			state = "Possible problem with the relational database."
-		
+	
+		try:
+                        actorRatings = ActorRating.objects.filter(aID=actor)
+                        totalRating = 0
+                        for i in actorRatings:
+                                totalRating = totalRating + i.rating
+                        if len(actorRatings) > 0:
+                                rating = float(totalRating / len(actorRatings))
+                except MovieRating.DoesNotExist:
+                        rating = 0
+	
 	except ActorDB.DoesNotExist:
 		state = "This actor does not exist in our database."
-	return render(request, 'actor_info.html', {'state':state, 'name':st1, 'placeofbirth':st2, 'dateofbirth':st3, 'movies':mList, 'perm':perm, 'num':i, 'uid':uid})
+	return render(request, 'actor_info.html', {'state':state, 'name':st1, 'placeofbirth':st2, 'dateofbirth':st3, 'movies':mList, 'rating':rating, 'perm':perm, 'num':i, 'uid':uid})
 	
 def actor_main(request):
 	state = ''

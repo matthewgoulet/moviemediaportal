@@ -31,10 +31,27 @@
 <b>Synopsis: </b> {{ synopsis }} <br>
 <br>
 <br>
+<b>Average User Rating: </b> {{ rating }}
+<br>
+<br>
 {% if perm == "a" %}
 <a href='{% url rt:movie_delete num %}'>Delete</a>
 {% endif %}
 </div>
+
+<center>
+<div class="rating">
+<form action="{% url rt:movie_info num %}" method="post"> {% csrf_token %}
+<span>☆ 5</span><input type="radio" name="rating" value="5">
+<span>☆ 4</span><input type="radio" name="rating" value="4">
+<span>☆ 3</span><input type="radio" name="rating" value="3">
+<span>☆ 2</span><input type="radio" name="rating" value="2">
+<span>☆ 1</span><input type="radio" name="rating" value="1">
+<tr></tr>
+<td><input name="submit" type="submit" value="Rate"></td>
+</form>
+</div>
+</center>
 
 {{ state }}
 
