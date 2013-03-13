@@ -1,12 +1,16 @@
-html,body
+html
 {
-    width: 100%;
-    margin: 0px;
-    padding: 0px;
-    overflow-x: hidden; 
+    overflow:auto!important;
+    width:100%;
+    min-width:1400px;
 }
 
 body {
+	width: 100%;
+	min-width:1400px;
+    margin: 0px;
+    padding: 0px;
+    overflow-x:hidden;
 	/* For any browser that can't create a gradient  */
     background-color: #C9C0BB;
 	
