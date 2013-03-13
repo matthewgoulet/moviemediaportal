@@ -31,7 +31,7 @@
 <b>Synopsis: </b> {{ synopsis }} <br>
 <br>
 <br>
-<b>Average User Rating: </b> {{ rating }}
+<b>Average User Rating: </b> {{ rating }} / 5
 <br>
 <br>
 {% if perm == "a" %}
@@ -39,6 +39,7 @@
 {% endif %}
 </div>
 
+{% if perm != "" %}
 <center>
 <div class="rating">
 <form action="{% url rt:movie_info num %}" method="post"> {% csrf_token %}
@@ -52,6 +53,7 @@
 </form>
 </div>
 </center>
+{% endif %}
 
 {{ state }}
 
