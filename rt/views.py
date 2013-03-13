@@ -5,7 +5,7 @@ from django.shortcuts import render
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
 
-from rt.models import Movie_Suggestion, MovieDB, ActorDB, MovieStarred, Actor_Suggestion, Movie_Edit
+from rt.models import Movie_Suggestion, MovieDB, ActorDB, MovieStarred, Actor_Suggestion, Movie_Edit, MovieRating, ActorRating
 
 def index(request):
 	state = 'Not logged in.'
@@ -281,6 +281,7 @@ def movie_info(request, i):
 	actorList = []
 	aIDList = []
 	aList = []
+	rating = 0
 	if 'username' in request.session:
 		uid = request.session['uid']
 		user = User.objects.get(username=request.session['username'])
@@ -313,10 +314,19 @@ def movie_info(request, i):
 				aList.append((str(actorList[m]), str(aIDList[m])))
 		except MovieStarred.DoesNotExist:
 			state = "Possible problem with the relational database."
-			
+
+		try:
+			movieRatings = MovieRating.objects.filter(mID=movie)
+			totalRating = 0
+			for i in movieRatings:
+				totalRating = totalRating + i.rating
+			if len(movieRatings) > 0:
+				rating = float(totalRating / len(movieRatings)) 
+		except MovieRating.DoesNotExist:
+			rating = 0	
 	except MovieDB.DoesNotExist:
 		state = "This movie does not exist in our database."
-	return render(request, 'movie_info.html', {'state':state, 'title':st1, 'year':st2, 'director':st3, 'producer':st4, 'actors':aList, 'synopsis':st6, 'perm':perm, 'num':i, 'uid':uid})
+	return render(request, 'movie_info.html', {'state':state, 'title':st1, 'year':st2, 'director':st3, 'producer':st4, 'actors':aList, 'synopsis':st6, 'rating':rating, 'perm':perm, 'num':i, 'uid':uid})
 
 def movie_delete(request, i):
 	uid = 0
