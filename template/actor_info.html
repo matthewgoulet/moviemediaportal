@@ -24,6 +24,9 @@
 {% endfor %} 
 <br>
 <br>
+<b>Average User Rating: </b>{{ rating }}
+<br>
+<br>
 {% if perm == "a" %}
 <a href='{% url rt:actor_delete num %}'>Delete</a>
 {% endif %}

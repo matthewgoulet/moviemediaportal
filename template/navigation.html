@@ -21,15 +21,14 @@
 		</div>
 		
 		<div id="searchbar"> 
-			<form name="search">
-			<input type="text" size="25" id="search"/>
-			<select>
+			<form name="search" action="{% url rt:navigation_search %}" method="post"> {% csrf_token %}
+			<input type="text" size="25" id="search" name="search"/>
+			<select name="type" id="type">
 				<option value="movies">Movies</option>
 				<option value="tv">TV</option>
 				<option value="actors">Actors</option>
-				<option value="users">Users</option>
 			</select>
-			<input type="image" class="searchpic" height="20px" src="http://i.imgur.com/pZewlpP.png" onClick = checkForm(this.form) alt="" />
+			<input type="image" class="searchpic" height="20px" src="http://i.imgur.com/pZewlpP.png" alt="" />
 			</form>
 		</div>
 	</div>

@@ -15,12 +15,15 @@
 </div><!--ends header-->
 
 <div class="notheader">
-<a href='{% url rt:movie_search %}'>Search again</a><br>
 <center>
 <h1>Search results:</h1>
 <body>
 {% for x, y in ids %}
+{% if typ == "movies" %}
 <a href='{% url rt:movie_info y %}'>{{ x }}</a><br>
+{% elif typ == "actors" %}
+<a href='{% url rt:actor_info y %}'>{{ x }}</a><br>
+{% endif %}
 {% endfor %}
 <br><br>
 {{ state }}
