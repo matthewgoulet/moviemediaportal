@@ -55,3 +55,19 @@ class MovieStarred(models.Model):
 	
 	def __unicode__(self):
 		return self.mID
+
+class MovieRating(models.Model):
+	username = models.CharField('Username', max_length=50)
+	mID = models.ForeignKey('MovieDB')
+	rating = models.IntegerField('Rating')
+
+	def __unicode__(self):
+		return self.mID
+
+class ActorRating(models.Model):
+	username = models.CharField('Username', max_length=50)
+	aID = models.ForeignKey('ActorDB')
+	rating = models.IntegerField('Rating')
+
+	def __unicode__(self):
+		return self.aID

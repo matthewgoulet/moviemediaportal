@@ -37,7 +37,8 @@ urlpatterns = patterns('',
 	url(r'^logout/$', views.logout, name='logout'),
 	url(r'^perm_denied/$', views.perm_denied, name='perm_denied'),
 	url(r'^register/$', views.register, name='register'),
-	url(r'^register_confirm/$', views.register_confirm, name='register_confirm')
+	url(r'^register_confirm/$', views.register_confirm, name='register_confirm'),
+	url(r'^search/$', views.navigation_search, name='navigation_search')
 ) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 if settings.DEBUG:

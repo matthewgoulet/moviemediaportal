@@ -5,7 +5,7 @@ from django.shortcuts import render
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
 
-from rt.models import Movie_Suggestion, MovieDB, ActorDB, MovieStarred, Actor_Suggestion, Movie_Edit
+from rt.models import Movie_Suggestion, MovieDB, ActorDB, MovieStarred, Actor_Suggestion, Movie_Edit, MovieRating, ActorRating
 
 def index(request):
 	state = 'Not logged in.'
@@ -281,6 +281,7 @@ def movie_info(request, i):
 	actorList = []
 	aIDList = []
 	aList = []
+	rating = 0
 	if 'username' in request.session:
 		uid = request.session['uid']
 		user = User.objects.get(username=request.session['username'])
@@ -313,10 +314,19 @@ def movie_info(request, i):
 				aList.append((str(actorList[m]), str(aIDList[m])))
 		except MovieStarred.DoesNotExist:
 			state = "Possible problem with the relational database."
-			
+
+		try:
+			movieRatings = MovieRating.objects.filter(mID=movie)
+			totalRating = 0
+			for i in movieRatings:
+				totalRating = totalRating + i.rating
+			if len(movieRatings) > 0:
+				rating = float(totalRating / len(movieRatings)) 
+		except MovieRating.DoesNotExist:
+			rating = 0	
 	except MovieDB.DoesNotExist:
 		state = "This movie does not exist in our database."
-	return render(request, 'movie_info.html', {'state':state, 'title':st1, 'year':st2, 'director':st3, 'producer':st4, 'actors':aList, 'synopsis':st6, 'perm':perm, 'num':i, 'uid':uid})
+	return render(request, 'movie_info.html', {'state':state, 'title':st1, 'year':st2, 'director':st3, 'producer':st4, 'actors':aList, 'synopsis':st6, 'rating':rating, 'perm':perm, 'num':i, 'uid':uid})
 
 def movie_delete(request, i):
 	uid = 0
@@ -463,6 +473,16 @@ def actor_suggest_confirm(request):
 		st2 = str(actor.placeofbirth)
 		st3 = str(actor.dateofbirth)
 		st4 = str(actor.movies)
+		if not len(st3.split('-')) == 3:
+			state = 'Invalid date during the creation of the actor profile. (MM-dd-YY)'
+			return render(request, 'error.html', {'state':state})
+		else:
+			for i in st3.split('-'):
+				try:
+					int(i)
+				except ValueError:
+					state = 'Invalid date during the creation of the actor profile. (MM-dd-YY)'	
+					return render(request, 'error.html', {'state':state})
 		if not na == '' and not pl == '' and not da == '' and not mo == '':
 			actor.save()
 			return render(request, 'actor_suggest_confirm.html', {'name':st1, 'placeofbirth':st2, 'dateofbirth':st3, 'movies':st4, 'uid':uid})
@@ -889,7 +909,7 @@ def movie_edit_confirm(request, i):
                 st6 = str(movie.synopsis)
         return render(request, 'movie_edit_confirm.html', {'state':state, 'title':st1, 'year':st2, 'director':st3, 'producer':st4, 'actors':st5, 'synopsis':st6, 'num':i, 'uid':uid})
 
-def movie_add_end(request, i):
+def movie_edit_end(request, i):
 	uid = 0
 	if 'username' in request.session:
 		uid = request.session['uid']
@@ -955,3 +975,26 @@ def movie_add_end(request, i):
 		else:
 			state = "No changes have been made. Please answer correctly 'yes' or 'no' in the previous page."
 	return render(request, 'movie_add_end.html', {'state':state, 'title':st1, 'uid':uid})
+
+def navigation_search(request):
+	state = ''
+	typ = ''
+	if request.POST:
+		search = str(request.POST.get('search'))
+		typ = str(request.POST.get('type'))
+
+		if typ == 'movies':
+			movies = MovieDB.objects.filter(title__icontains=search)
+			titles = helper.sort_title(movies)
+                        ids = helper.sort_id(movies, titles)
+                        if len(ids) == 0:
+                                state = "No movies have been found to match the input specifications."
+                        return render(request, 'navigation_search.html', {'state':state, 'ids':ids, 'typ':typ})
+		elif typ == 'actors':
+			actors = ActorDB.objects.filter(name__icontains=search)
+			names = helper.sort_name(actors)
+                        ids = helper.sort_actor_id(actors, names)
+                        if len(ids) == 0:
+                                state = "No actors have been found to match the input specifications."
+                        return render(request, 'navigation_search.html', {'state':state, 'ids':ids, 'typ':typ})
+	return render(request, 'navigation_search.html', {'state':state, 'ids':ids, 'typ':typ})
