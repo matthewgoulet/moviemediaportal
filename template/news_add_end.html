@@ -1,5 +1,5 @@
 <html>
-<title>WELCOME</title>
+<title>News add</title>
 
 <head>
 <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}style.css">
@@ -15,22 +15,23 @@
 </div><!--ends header-->
 
 <div class="notheader">
-{{ state }}
+<center>
+<h1>News updated</h1>
+<body>
+The news has been updated.
 <br><br>
-{% if perm != "" %}
-<b>News: </b> {{ news }}
-{% endif %}
+News: {{ news }}
 <br>
-{% if perm == "a" %}
-<br>
-<a href='{% url rt:news_add %}'>Add news</a><br>
-{% endif %}
-
+<b>{{ state }}</b>
+</center>
 </div>
+
+{{ state }}
+
 </div> <!-- ends column -->
 
 <div class="footer">
 	{% include 'footer.html' %}
 </div>
 </body>
-</html>
+</html> 

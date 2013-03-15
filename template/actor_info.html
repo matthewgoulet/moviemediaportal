@@ -15,8 +15,12 @@
 </div><!--ends header-->
 
 <div class="notheader">
+{% if perm != "" %}
+<a href='{% url rt:actor_edit_suggest num %}'>Edit this actor</a>
+<br>
+{% endif %}
 <h2>{{ name }}</h2>
-<b>Year of birth: </b> {{ yearofbirth }} <br>
+<b>Date of birth: </b> {{ dateofbirth }} <br>
 <b>Place of birth: </b> {{ placeofbirth }} <br>
 <b>Movies: </b> - 
 {% for x, y in movies %}
@@ -48,6 +52,8 @@
 {% endif %}
 
 </div>
+
+{{ state }}
 
 </div> <!-- ends column -->
 

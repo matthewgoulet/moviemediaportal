@@ -16,7 +16,8 @@
 
 <div class="notheader">
 {% if perm == "a" %}
-<a href='{% url rt:actor_add %}'>Add an actor</a>
+<a href='{% url rt:actor_add %}'>Add an actor</a><br>
+<a href='{% url rt:actor_edit %}'>Accept an actor edit</a><br>
 <br>
 {% endif %}
 {% if perm != "" %}

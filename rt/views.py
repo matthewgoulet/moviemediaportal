@@ -6,16 +6,30 @@ from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
 from django.forms.widgets import RadioSelect
 
-from rt.models import Movie_Suggestion, MovieDB, ActorDB, MovieStarred, Actor_Suggestion, Movie_Edit, MovieRating, ActorRating
+from rt.models import Movie_Suggestion, MovieDB, ActorDB, MovieStarred, Actor_Suggestion, Movie_Edit, Actor_Edit, MovieRating, ActorRating, Website
 
 def index(request):
 	state = 'Not logged in.'
 	un = ''
 	uid = 0
+	perm = ""
+	news = 'No news currently.'
 	if 'username' in request.session:
 		un = str(request.session['username'])
 		uid = request.session['uid']
 		state = 'Hello ' + un + '.'
+		user = User.objects.get(username=request.session['username'])
+                if user.is_staff:
+                        perm = 'a'
+                else:
+                        perm = 'u'
+
+	try:
+		n = Website.objects.get(typ='news')
+		news = n.message
+	except Website.DoesNotExist:
+		news = 'No news currently'
+
 	#Login post
 	if request.POST:
 			username = request.POST.get('username')
@@ -26,11 +40,11 @@ def index(request):
 				request.session['username'] = user.username
 				request.session['uid'] = user.id
 				state = 'Hello ' + str(request.session['username']) + '.'
-				return render(request, 'index.html', {'state':state, 'uid':request.session['uid']})
+				return render(request, 'index.html', {'state':state, 'news':news, 'uid':request.session['uid'], 'perm':perm})
 			else:
 				state = 'Username/password do not match.'
-				return render(request, 'login.html', {'state':state, 'uid':0})
-	return render(request, 'index.html', {'state':state, 'uid':uid})
+				return render(request, 'login.html', {'state':state, 'uid':0, 'news':news})
+	return render(request, 'index.html', {'state':state, 'news':news, 'uid':uid, 'perm':perm})
 
 def error(request):
 	uid = 0
@@ -905,8 +919,8 @@ def movie_edit_suggest_confirm(request, i):
 			movie.save()
 			return render(request, 'movie_edit_suggest_confirm.html', {'title':oldTi, 'year':st2, 'director':st3, 'producer':st4, 'actors':st5, 'synopsis':st6, 'oldYear':oldYe, 'oldDirector':oldDi, 'oldProducer':oldPr, 'oldSynopsis':oldSy, 'oldActors':actors, 'uid':uid})
 		else:
-			state = 'All fields need to be completed.'
-			return render(request, 'error.html', {'state':state})
+			state = 'All fields need to be completed when editing a movie.'
+			return render(request, 'error.html', {'state':state, 'num':i})
 			
 def movie_edit(request):
 	uid = 0
@@ -931,7 +945,7 @@ def movie_edit_confirm(request, i):
                 uid = request.session['uid']
                 user = User.objects.get(username=request.session['username'])
                 if not user.is_staff:
-                        state = "You do not have the permissions to add a movie."
+                        state = "You do not have the permissions to edit a movie."
                         return render(request, 'perm_denied.html', {'state':state, 'uid':uid})
         else:
                 state = "You are not logged in."
@@ -1050,3 +1064,240 @@ def navigation_search(request):
                                 state = "No actors have been found to match the input specifications."
                         return render(request, 'navigation_search.html', {'state':state, 'ids':ids, 'typ':typ})
 	return render(request, 'navigation_search.html', {'state':state, 'ids':ids, 'typ':typ})
+
+def actor_edit_suggest(request, i):
+        state = ''
+        st1 = st2 = st3 = ''
+        perm = ''
+        uid = 0
+        movieList = []
+        mIDList = []
+        mList = []
+        if 'username' in request.session:
+                uid = request.session['uid']
+                user = User.objects.get(username=request.session['username'])
+                if user.is_staff:
+                        perm = 'a'
+                else:
+                        perm = 'u'
+        try:
+                actor = ActorDB.objects.get(id=i)
+                st1 = actor.name
+                st2 = actor.placeofbirth
+                st3 = actor.dateofbirth
+
+                #Makes a string of all the movies
+                try:
+                        moviesStarred = MovieStarred.objects.filter(aID=actor)
+                        movies = ''
+                        for mo in moviesStarred:
+                                movies = movies + str(mo.mID.title) + ', '
+                        if len(movies) > 2:
+                                movies = movies[:-2]
+                except MovieStarred.DoesNotExist:
+                        state = "This actor doesn't have any actors associated to it."
+        except MovieDB.DoesNotExist:
+                state = "This actor does not exist in our database."
+        return render(request, 'actor_edit_suggest.html', {'state':state, 'name':st1, 'placeofbirth':st2, 'dateofbirth':st3, 'movies':movies, 'perm':perm, 'num':i, 'uid':uid})
+
+def actor_edit_suggest_confirm(request, i):
+        st1 = st2 = st3 = st4 = ''
+        uid = 0
+        if not 'username' in request.session:
+                state = "You do not have the permissions to suggest a movie."
+                return render(request, 'perm_denied.html', {'state':state, 'uid':uid})
+        else:
+                uid = request.session['uid']
+        if request.POST:
+                pl = request.POST.get('placeofbirth')
+                da = request.POST.get('dateofbirth')
+		mov = request.POST.get('movies')
+
+                try:
+                        oldActor = ActorDB.objects.get(id=i)
+			oldNa = str(oldActor.name)
+                        oldPl = str(oldActor.placeofbirth)
+                        oldDa = str(oldActor.dateofbirth)
+
+                        actor = Actor_Edit(name=oldNa, placeofbirth=pl, dateofbirth=da, movies=mov)
+                        st2 = str(actor.placeofbirth)
+                        st3 = str(actor.dateofbirth)
+			st4 = str(actor.movies)
+
+                        try:
+                                moviesStarred = MovieStarred.objects.filter(aID=oldActor)
+                                movies = ''
+                                for mo in moviesStarred:
+                                        movies = movies + str(mo.mID.title) + ', '
+                                if len(movies) > 2:
+                                        movies = movies[:-2]
+                        except MovieStarred.DoesNotExist:
+                                state = "This actor doesn't have any movies associated to it."
+
+                        if(st2 == oldPl and st3 == oldDa and st4 == movies):
+                                state = 'No modifications has been made for this actor.'
+                                return render(request, 'error.html', { 'state':state})
+
+                except ActorDB.DoesNotExist:
+                        state = 'Could not find the actor in the database.'
+		if not pl == '' and not da == '' and not mov == '':
+                        actor.save()
+                        return render(request, 'actor_edit_suggest_confirm.html', {'name':oldNa, 'placeofbirth':st2, 'dateofbirth':st3, 'movies':mov, 'oldPlaceofbirth':oldPl, 'oldDateofbirth':oldDa, 'oldMovies':movies, 'uid':uid})
+                else:
+                        state = 'All fields need to be completed when editing an actor.'
+                        return render(request, 'error.html', {'state':state, 'num':i})
+
+def actor_edit(request):
+        uid = 0
+        if 'username' in request.session:
+                uid = request.session['uid']
+                user = User.objects.get(username=request.session['username'])
+                if not user.is_staff:
+                        state = "You do not have the permissions to edit an actor."
+                        return render(request, 'perm_denied.html', {'state':state, 'uid':uid})
+        else:
+                state = "You are not logged in."
+                return render(request, 'perm_denied.html', {'state':state, 'uid':uid})
+        actors = Actor_Edit.objects.all()
+        li = []
+        for i in actors:
+                li.append(i.name)
+        return render(request, 'actor_edit.html', {'actors':li, 'uid':uid})
+
+def actor_edit_confirm(request, i):
+        uid = 0
+        if 'username' in request.session:
+                uid = request.session['uid']
+                user = User.objects.get(username=request.session['username'])
+                if not user.is_staff:
+                        state = "You do not have the permissions to edit an actor."
+                        return render(request, 'perm_denied.html', {'state':state, 'uid':uid})
+        else:
+                state = "You are not logged in."
+                return render(request, 'perm_denied.html', {'state':state, 'uid':uid})
+        state = ''
+        st1 = st2 = st3 = st4 = st5 = st6 = ''
+        actors = Actor_Edit.objects.all()
+        if int(i) > len(actors):
+                state = 'The actor does not exist in the edit database anymore.'
+        else:
+                actor = actors[int(i)-1]
+                st1 = str(actor.name)
+                st2 = str(actor.placeofbirth)
+                st3 = str(actor.dateofbirth)
+                st4 = str(actor.movies)
+        return render(request, 'actor_edit_confirm.html', {'state':state, 'name':st1, 'placeofbirth':st2, 'dateofbirth':st3, 'movies':st4, 'num':i, 'uid':uid})
+
+def actor_edit_end(request, i):
+        uid = 0
+        if 'username' in request.session:
+                uid = request.session['uid']
+                user = User.objects.get(username=request.session['username'])
+                if not user.is_staff:
+                        state = "You do not have the permissions to add a movie."
+                        return render(request, 'perm_denied.html', {'state':state, 'uid':uid})
+        else:
+                state = "You are not logged in."
+                return render(request, 'perm_denied.html', {'state':state, 'uid':uid})
+        state = ''
+        st1 = ''
+        if request.POST:
+                num = int(i)
+                li = Actor_Edit.objects.all()
+                confirm = request.POST.get('accept')
+                actor = li[num-1]
+                st2 = request.POST.get('placeofbirth')
+                st3 = request.POST.get('dateofbirth')
+                st4 = request.POST.get('movies')
+
+                if confirm == 'y' or confirm == 'yes':
+                        #Checks if the actor is already in the database
+                        try:
+                                editActor = ActorDB.objects.get(id=i)
+
+                                mo = st4.split(', ')
+                                #Checks the relational property of Movie-Actor. If the movie is not present, add the actor
+                                for i in mo:
+                                        if len(i) > 0:
+                                                        i = i[0].capitalize() + i[1:]
+                                        try:
+                                                MovieDB.objects.get(title=i)
+                                        except MovieDB.DoesNotExist:
+                                                newMovie = MovieDB(title=i)
+                                                newMovie.save()
+
+                                #Deletes old movies in MovieStarred:
+				oldMovies = MovieStarred.objects.filter(aID=editActor)
+                                for j in oldMovies:
+                                        j.delete()
+
+                                #Edits the actor information in MovieDB
+                                editActor.placeofbirth = st2
+                                editActor.dateofbirth = st3
+                                editActor.save()
+
+                                #Adds to the Movie-Actor relational table
+                                for i in mo:
+                                        if len(i) > 0:
+                                                i = i[0].capitalize() + i[1:]
+                                        try:
+                                                addMovie = MovieDB.objects.get(title=i)
+                                                try:
+                                                        MovieStarred.objects.get(aID=editActor, mID=addMovie)
+                                                except MovieStarred.DoesNotExist:
+                                                        newMARelation = MovieStarred(aID=editActor, mID=addMovie)
+                                                        newMARelation.save()
+                                        except MovieDB.DoesNotExist:
+                                                continue
+
+                                state = "The actor has been successfully edited in the database."
+                        except ActorDB.DoesNotExist:
+                                state = "The actor isn't in the database. The edit suggestion will be deleted."
+                        actor.delete()
+                elif confirm == 'n' or confirm == 'no':
+                        actor.delete()
+                        state = "The edit of this actor has been refused."
+                else:
+                        state = "No changes have been made. Please answer correctly 'yes' or 'no' in the previous page."
+        return render(request, 'actor_add_end.html', {'state':state, 'title':st1, 'uid':uid})
+
+def news_add(request):
+	uid = 0
+        if 'username' in request.session:
+                uid = request.session['uid']
+                user = User.objects.get(username=request.session['username'])
+                if not user.is_staff:
+                        state = "You do not have the permissions to add a movie."
+                        return render(request, 'perm_denied.html', {'state':state, 'uid':uid})
+        else:
+                state = "You are not logged in."
+                return render(request, 'perm_denied.html', {'state':state, 'uid':uid})
+
+	state = ""
+	oldNews = ""
+	message = ""
+	ty = 'news'
+	try:
+		oldNews = Website.objects.get(typ=ty)
+		message = oldNews.message
+	except Website.DoesNotExist:
+		oldNews = ""
+	return render(request, 'news_add.html', {'state':state, 'message':message, 'uid':uid})
+
+def news_add_end(request):
+	state = ''
+	news = ''
+	if request.POST:
+		news = request.POST.get('news')
+		if news == '':
+			state = 'No news has been entered.'
+			return render(request, 'error.html', {'state':state})
+		else:
+			try:
+				n = Website.objects.get(typ='news')
+				n.message = news
+				n.save()
+			except Website.DoesNotExist:
+				newNews = Website(typ='news', message=news)
+				newNews.save()
+	return render(request, 'news_add_end.html', {'state':state, 'news':news})

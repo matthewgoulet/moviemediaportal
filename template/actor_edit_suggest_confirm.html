@@ -1,6 +1,5 @@
 <html>
-<title>WELCOME</title>
-
+<title>Actor Edit Suggestion - Confirmation</title>
 <head>
 <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}style.css">
 <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}form-style.css">
@@ -15,18 +14,17 @@
 </div><!--ends header-->
 
 <div class="notheader">
-{{ state }}
+<h3><b>You have submitted the following modification to: {{ name }}</b></h3>
+<b>Place of birth: </b> {{ placeofbirth }} - (Old: {{ oldPlaceofbirth }})<br>
+<b>Date of birth: </b> {{ dateofbirth }} - (Old: {{ oldDateofbirth }})<br>
+<b>Movies: </b> {{ movies }} - (Old: {{ oldMovies }})<br>
 <br><br>
-{% if perm != "" %}
-<b>News: </b> {{ news }}
-{% endif %}
+<a href='{% url rt:index %}'>Back to index</a>
 <br>
-{% if perm == "a" %}
 <br>
-<a href='{% url rt:news_add %}'>Add news</a><br>
-{% endif %}
-
+{{ state }}
 </div>
+
 </div> <!-- ends column -->
 
 <div class="footer">

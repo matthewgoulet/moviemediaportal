@@ -1,5 +1,6 @@
 <html>
-<title>WELCOME</title>
+
+<title>Actor Edit</title>
 
 <head>
 <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}style.css">
@@ -14,23 +15,29 @@
 	{% include 'navigation.html' %}
 </div><!--ends header-->
 
-<div class="notheader">
-{{ state }}
-<br><br>
-{% if perm != "" %}
-<b>News: </b> {{ news }}
-{% endif %}
-<br>
-{% if perm == "a" %}
-<br>
-<a href='{% url rt:news_add %}'>Add news</a><br>
-{% endif %}
+<body>
 
+<div class="notheader">
+<center>
+<b>Actor(s) to edit:</b>
+<br><br>
+{% for i in actors %}
+<a href='{% url rt:actor_edit_confirm forloop.counter %}'>{{ i }}</a>
+<br>
+{% endfor %}
+<br><br>
+<a href='{% url rt:index %}'>Back to index</a>
+</center>
 </div>
-</div> <!-- ends column -->
+</div>
+
+</body>
 
 <div class="footer">
 	{% include 'footer.html' %}
 </div>
-</body>
+<br>
+{{ state }}
+<br>
+
 </html>

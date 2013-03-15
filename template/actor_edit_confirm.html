@@ -1,0 +1,41 @@
+<html>
+<title>Edit Actor Confirmation</title>
+
+<head>
+<link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}style.css">
+<link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}form-style.css">
+
+</head>
+
+<body>
+<div class="column">
+
+<div class="headerheader">
+	{% include 'navigation.html' %}
+</div><!--ends header-->
+
+<div class="notheader">
+<center>
+<h1>Edit actor - {{ name }}</h1>
+<form action="{% url rt:actor_edit_end num %}" method="post"> {% csrf_token %}
+<table class="actoredit-table">
+<tr><td>Place of birth: </td><td><input type="text" name="placeofbirth" value = "{{ placeofbirth }}"></td></tr>
+<tr><td>Date of birth: </td><td><input type="text" name="dateofbirth" value="{{ dateofbirth }}"></td></tr>
+<tr><td>Movies: </td><td><input type="text" name="movies" value="{{ movies }}"></td></tr>
+<tr></tr>
+<tr><td>y/n: </td><td><input type="text" name="accept"></td></tr>
+<tr></tr>
+<td><input name="submit" type="submit" value="Submit"></td>
+</table>
+<br>
+<b>{{ state }}</b>
+</center>
+</div>
+
+</div> <!-- ends column -->
+
+<div class="footer">
+	{% include 'footer.html' %}
+</div>
+</body>
+</html> 
