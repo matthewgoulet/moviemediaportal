@@ -17,7 +17,7 @@
 <div class="notheader">
 <center>
 <h1>Edit movie - {{ title }}</h1>
-<form action="{% url rt:movie_add_end num %}" method="post"> {% csrf_token %}
+<form action="{% url rt:movie_edit_end num %}" method="post"> {% csrf_token %}
 <table class="movieadd-table">
 <tr><td>Year: </td><td><input type="text" name="year" value = "{{ year }}"></td></tr>
 <tr><td>Director: </td><td><input type="text" name="director" value="{{ director }}"></td></tr>

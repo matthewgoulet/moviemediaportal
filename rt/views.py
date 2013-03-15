@@ -966,7 +966,7 @@ def movie_edit_end(request, i):
 	st1 = ''
 	if request.POST:
 		num = int(i)
-		li = Movie_Suggestion.objects.all()
+		li = Movie_Edit.objects.all()
 		confirm = request.POST.get('accept')
 		movie = li[num-1]
 		st2 = request.POST.get('year')
@@ -978,8 +978,8 @@ def movie_edit_end(request, i):
 		if confirm == 'y' or confirm == 'yes':
 			#Checks if the movie is already in the database
 			try:
-				MovieDB.objects.get(movie.title)
-				### HIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII ******** TODO
+				editMovie = MovieDB.objects.get(id=i)
+		
 				ac = st5.split(', ')
 				#Checks the relational property of Movie-Actor. If the actor is not present, add the actor
 				for i in ac:
@@ -990,9 +990,19 @@ def movie_edit_end(request, i):
 					except ActorDB.DoesNotExist:
 						newActor = ActorDB(name=i)
 						newActor.save()
-				newMovie = MovieDB(title=st1, year=st2, director=st3, producer=st4, synopsis=st6)
-				newMovie.save()
-				
+
+				#Deletes old actors in MovieStarred:
+				oldActors = MovieStarred.objects.filter(mID=editMovie)
+				for j in oldActors:
+					j.delete()
+
+				#Edits the movie information in MovieDB
+				editMovie.year = st2
+				editMovie.director = st3
+				editMovie.producer = st4
+				editMovie.synopsis = st6
+				editMovie.save()
+	
 				#Adds to the Movie-Actor relational table
 				for i in ac:
 					if len(i) > 0:
@@ -1000,20 +1010,20 @@ def movie_edit_end(request, i):
 					try:
 						addActor = ActorDB.objects.get(name=i)
 						try:
-							MovieStarred.objects.get(mID=newMovie, aID=addActor)
+							MovieStarred.objects.get(mID=editMovie, aID=addActor)
 						except MovieStarred.DoesNotExist:
-							newMARelation = MovieStarred(mID=newMovie, aID=addActor)
+							newMARelation = MovieStarred(mID=editMovie, aID=addActor)
 							newMARelation.save()
 					except ActorDB.DoesNotExist:
 						continue
 				
-				state = "The movie has been successfully added to the database."
+				state = "The movie has been successfully edited in the database."
 			except MovieDB.DoesNotExist:
 				state = "The movie isn't in the database. The edit suggestion will be deleted."
 			movie.delete()
 		elif confirm == 'n' or confirm == 'no':
 			movie.delete()
-			state = "The addition of this movie has been refused."
+			state = "The edit of this movie has been refused."
 		else:
 			state = "No changes have been made. Please answer correctly 'yes' or 'no' in the previous page."
 	return render(request, 'movie_add_end.html', {'state':state, 'title':st1, 'uid':uid})
