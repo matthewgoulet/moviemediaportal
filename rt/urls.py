@@ -46,7 +46,11 @@ urlpatterns = patterns('',
 	url(r'^perm_denied/$', views.perm_denied, name='perm_denied'),
 	url(r'^register/$', views.register, name='register'),
 	url(r'^register_confirm/$', views.register_confirm, name='register_confirm'),
-	url(r'^search/$', views.navigation_search, name='navigation_search')
+	url(r'^search/$', views.navigation_search, name='navigation_search'),
+	url(r'^tv/$', views.tv_main, name='tv_main'),
+	url(r'^tv/(?P<i>\d+)/$', views.tv_info, name='tv_info'),
+	url(r'^tv_suggest/$', views.tv_suggest, name='tv_suggest'),
+        url(r'^tv_suggest/confirm/$', views.tv_suggest_confirm, name='tv_suggest_confirm')
 ) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 if settings.DEBUG:

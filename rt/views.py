@@ -6,7 +6,7 @@ from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
 from django.forms.widgets import RadioSelect
 
-from rt.models import Movie_Suggestion, MovieDB, ActorDB, MovieStarred, Actor_Suggestion, Movie_Edit, Actor_Edit, MovieRating, ActorRating, Website
+from rt.models import Movie_Suggestion, MovieDB, ActorDB, MovieStarred, Actor_Suggestion, Movie_Edit, Actor_Edit, MovieRating, ActorRating, Website, TVDB, TV_Suggestion, TVStarred, TVRating
 
 def index(request):
 	state = 'Not logged in.'
@@ -1301,3 +1301,129 @@ def news_add_end(request):
 				newNews = Website(typ='news', message=news)
 				newNews.save()
 	return render(request, 'news_add_end.html', {'state':state, 'news':news})
+
+def tv_main(request):
+        state = ''
+        perm = ''
+        uid = 0
+        tvs = TVDB.objects.all()
+        titles = helper.sort_title(tvs)
+        ids = helper.sort_tv_id(tvs, titles)
+        if 'username' in request.session:
+                uid = request.session['uid']
+                user = User.objects.get(username=request.session['username'])
+                if user.is_staff:
+                        perm = 'a'
+                else:
+                        perm = 'u'
+        if len(ids) == 0:
+                state = "No TV shows found in the database."
+        return render(request, 'tv_main.html', {'state':state, 'perm':perm, 'ids':ids, 'uid':uid})
+
+def tv_info(request, i):
+	state = ''
+	st1 = st2 = st3 = st4 = ''
+	perm = ''
+	uid = 0
+	actorList = []
+	aIDList = []
+	aList = []
+	rating = 0
+	rat = 0
+	if 'username' in request.session:
+		uid = request.session['uid']
+		user = User.objects.get(username=request.session['username'])
+		if user.is_staff:
+			perm = 'a'
+		else:
+			perm = 'u'
+
+	try:
+		tv = TVDB.objects.get(id=i)
+		st1 = tv.title
+		st2 = tv.year
+		st3 = tv.season
+		st4 = tv.synopsis
+
+		if request.POST:
+			if not request.POST.get('rating') == None:
+				rat = int(request.POST.get('rating'))
+			if rat > 0 and rat < 6:
+				try:
+					userRating = TVRating.objects.get(username=request.session['username'], tID=tv)
+					userRating.rating = rat
+					userRating.save()
+				except TVRating.DoesNotExist:
+					userRating = TVRating(username=request.session['username'], tID=movie, rating=rat)
+					userRating.save()
+	
+		try:
+			TVsStarred = TVStarred.objects.filter(tID=tv)
+			actors = []
+			for l in TVsStarred:
+				actors.append(l.aID)
+			for k in actors:
+				actorList.append(k.name)
+			for j in actorList:
+				try:
+					aid = ActorDB.objects.get(name=j)
+					aIDList.append(aid.id)
+				except ActorDB.DoesNotExist:
+					continue
+			for m in range(len(actors)):
+				aList.append((str(actorList[m]), str(aIDList[m])))
+		except TVStarred.DoesNotExist:
+			state = "Possible problem with the relational database."
+
+		try:
+			TVRatings = TVRating.objects.filter(tID=tv)
+			totalRating = 0
+			for j in TVRatings:
+				totalRating = totalRating + j.rating
+			if len(TVRatings) > 0:
+				rating = float(totalRating) / float(len(TVRatings)) 
+		except TVRating.DoesNotExist:
+			rating = 0	
+	except TVDB.DoesNotExist:
+		state = "This TV show does not exist in our database."
+	return render(request, 'tv_info.html', {'state':state, 'title':st1, 'year':st2, 'season':st3, 'actors':aList, 'synopsis':st4, 'rating':rating, 'perm':perm, 'num':i, 'uid':uid})
+
+def tv_suggest(request):
+	state = ''
+	uid = 0
+	if 'username' in request.session:
+		un = str(request.session['username'])
+		uid = request.session['uid']
+	if not 'username' in request.session:
+                state = "You do not have the permissions to suggest a movie."
+                return render(request, 'perm_denied.html', {'state':state, 'uid':uid})
+	return render(request, 'tv_suggest.html', {'state':state, 'uid':uid})
+
+def tv_suggest_confirm(request):
+	st1 = st2 = st3 = st5 = st6 = ''
+	uid = 0
+	if not 'username' in request.session:
+		state = "You do not have the permissions to suggest a movie."
+		return render(request, 'perm_denied.html', {'state':state, 'uid':uid})
+	else:
+		uid = request.session['uid']
+	if request.POST:
+		ti = request.POST.get('title')
+		if len(ti) > 0:
+			ti = ti[0].capitalize() + ti[1:]
+		ye = request.POST.get('year')
+		se = request.POST.get('season')
+		ac = request.POST.get('actor')
+		sy = request.POST.get('synopsis')
+		tv = TV_Suggestion(title=ti, year=ye, season=se, actors=ac, synopsis=sy)
+		st1 = str(tv.title)
+		st2 = str(tv.year)
+		st3 = str(tv.season)
+		st5 = str(tv.actors)
+		st6 = str(tv.synopsis)
+		if not ti == '' and not ye == '' and not se == '' and not ac == '' and not sy == '':
+			tv.save()
+			return render(request, 'tv_suggest_confirm.html', {'title':st1, 'year':st2, 'season':st3, 'actors':st5, 'synopsis':st6, 'uid':uid})
+		else:
+			state = 'All fields need to be completed when suggesting a TV show.'
+			return render(request, 'error.html', {'state':state})

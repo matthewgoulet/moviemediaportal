@@ -10,6 +10,8 @@
 <meta http-equiv="REFRESH" content='4; url= {% url rt:movie_suggest %}'></head>
 {% elif state == "All fields need to be completed when suggesting an actor." %}
 <meta http-equiv="REFRESH" content='4; url= {% url rt:actor_suggest %}'></head>
+{% elif state == "All fields need to be completed when suggesting a TV show." %}
+<meta http-equiv="REFRESH" content='4; url= {% url rt:tv_suggest %}'></head>
 {% elif state == "Invalid date during the creation of the actor profile. (MM-dd-YY)" %}
 <meta http-equiv="REFRESH" content='4; url= {% url rt:actor_suggest %}'></head>
 {% elif state == "All fields need to be completed when editing a movie." %}

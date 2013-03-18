@@ -6,7 +6,7 @@ def user_present(username):
 		return True	
 	return False
 	
-#Takes in a list of MovieDB objects
+#Takes in a list of MovieDB/TVDB objects
 #Outputs a list of sorted titles
 def sort_title(movies):
 	titles = []
@@ -26,7 +26,17 @@ def sort_id(movies, titles):
 		except MovieDB.DoesNotExist:
 			return []
 	return ids
-	
+
+def sort_tv_id(tvs, titles):
+	ids = []
+	for i in titles:
+		try:
+			tv_id = TVDB.objects.get(title=i).id
+			ids.append(i, tv_id)
+		except TVDB.DoesNotExist:
+			return []
+	return ids
+
 def sort_name(actors):
 	names = []
 	for i in actors:

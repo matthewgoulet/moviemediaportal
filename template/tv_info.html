@@ -1,0 +1,65 @@
+<html>
+<title>TV show Information - {{ title }}</title>
+
+<head>
+<link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}style.css">
+<link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}form-style.css">
+
+</head>
+
+<body>
+<div class="column">
+
+<div class="headerheader">
+	{% include 'navigation.html' %}
+</div><!--ends header-->
+
+<div class="notheader">
+{% if perm != "" %}
+<a href='{% url rt:index num %}'>Edit this TV show</a>
+<br>
+{% endif %}
+<h2>{{ title }}</h2>
+<b>Year: </b> {{ year }} <br>
+<b>Number of seasons: </b> {{ season }} <br>
+<b>Actors: </b> - 
+{% for x, y in actors %}
+<a href='{% url rt:actor_info y %}'>{{ x }}</a> - 
+{% endfor %} 
+<br>
+<b>Synopsis: </b> {{ synopsis }} <br>
+<br>
+<br>
+<b>Average User Rating: </b> {{ rating }} / 5
+<br>
+<br>
+{% if perm == "a" %}
+<a href='{% url rt:index num %}'>Delete</a>
+{% endif %}
+</div>
+
+{% if perm != "" %}
+<center>
+<div class="rating">
+<form action="{% url rt:movie_info num %}" method="post"> {% csrf_token %}
+<span>☆ 5</span><input type="radio" name="rating" value="5">
+<span>☆ 4</span><input type="radio" name="rating" value="4">
+<span>☆ 3</span><input type="radio" name="rating" value="3">
+<span>☆ 2</span><input type="radio" name="rating" value="2">
+<span>☆ 1</span><input type="radio" name="rating" value="1">
+<tr></tr>
+<td><input name="submit" type="submit" value="Rate"></td>
+</form>
+</div>
+</center>
+{% endif %}
+
+{{ state }}
+
+</div> <!-- ends column -->
+
+<div class="footer">
+	{% include 'footer.html' %}
+</div>
+</body>
+</html> 

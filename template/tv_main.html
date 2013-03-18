@@ -1,0 +1,47 @@
+<html>
+<title>TV Shows</title>
+
+<head>
+<link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}style.css">
+<link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}form-style.css">
+
+</head>
+
+<body>
+<div class="column">
+
+<div class="headerheader">
+	{% include 'navigation.html' %}
+</div><!--ends header-->
+
+<div class="notheader">
+{% if perm == "a" %}
+<a href='{% url rt:index %}'>Add a TV show</a><br>
+<a href='{% url rt:index %}'>Accept a TV show edit</a><br>
+<br>
+{% endif %}
+{% if perm != "" %}
+<a href='{% url rt:tv_suggest %}'>Suggest a TV show</a>
+<br>
+{% endif %}
+<a href='{% url rt:index %}'>Search for a TV show</a>
+<br>
+
+<br><br>
+<b>TV Shows List:</b><br>
+{% for x, y in ids %}
+<a href='{% url rt:tv_info y %}'>{{ x }}</a><br>
+{% endfor %}
+<br><br>
+{{ state }}
+
+</div>
+</div> <!--ends column-->
+
+<div class="footer">
+	{% include 'footer.html' %}
+</div>
+</body>
+
+</body>
+</html>

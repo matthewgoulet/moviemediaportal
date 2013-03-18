@@ -87,3 +87,37 @@ class Website(models.Model):
 
 	def __unicode__(self):
 		return self.typ
+
+class TV_Suggestion(models.Model):
+        title = models.CharField('Title', primary_key=True, max_length=50)
+        year = models.IntegerField('Year')
+        season = models.IntegerField('Season')
+        actors = models.CharField('Actors', max_length=2000)
+        synopsis = models.CharField('Synopsis', max_length=5000)
+
+	def __unicode__(self):
+		return self.title
+
+class TVDB(models.Model):
+        title = models.CharField('Title', max_length=50)
+        year = models.IntegerField('Year')
+        season = models.IntegerField('Season')
+        synopsis = models.CharField('Synopsis', max_length=5000)
+
+        def __unicode__(self):
+                return self.title
+
+class TVStarred(models.Model):
+        tID = models.ForeignKey('TVDB')
+        aID = models.ForeignKey('ActorDB')
+
+        def __unicode__(self):
+                return self.mID
+
+class TVRating(models.Model):
+        username = models.CharField('Username', max_length=50)
+        tID = models.ForeignKey('TVDB')
+        rating = models.IntegerField('Rating')
+
+        def __unicode__(self):
+                return self.tID
