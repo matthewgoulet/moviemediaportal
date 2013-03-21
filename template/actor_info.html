@@ -27,6 +27,11 @@
 <a href='{% url rt:movie_info y %}'>{{ x }}</a> - 
 {% endfor %} 
 <br>
+<b>TV shows: </b> -
+{% for a, b in tvs %}
+<a href='{% url rt:tv_info b %}'>{{ a }}</a> -
+{% endfor %}
+<br>
 <br>
 <b>Average User Rating: </b>{{ rating }} / 5
 <br>

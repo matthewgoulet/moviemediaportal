@@ -1,5 +1,5 @@
 from django.contrib.auth.models import User
-from rt.models import Movie_Suggestion, MovieDB, ActorDB
+from rt.models import Movie_Suggestion, MovieDB, ActorDB, TVDB
 
 def user_present(username):
 	if User.objects.filter(username=username).count():
@@ -32,7 +32,7 @@ def sort_tv_id(tvs, titles):
 	for i in titles:
 		try:
 			tv_id = TVDB.objects.get(title=i).id
-			ids.append(i, tv_id)
+			ids.append((i, tv_id))
 		except TVDB.DoesNotExist:
 			return []
 	return ids

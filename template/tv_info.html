@@ -16,7 +16,7 @@
 
 <div class="notheader">
 {% if perm != "" %}
-<a href='{% url rt:index num %}'>Edit this TV show</a>
+<a href='{% url rt:index %}'>Edit this TV show</a>
 <br>
 {% endif %}
 <h2>{{ title }}</h2>
@@ -34,14 +34,14 @@
 <br>
 <br>
 {% if perm == "a" %}
-<a href='{% url rt:index num %}'>Delete</a>
+<a href='{% url rt:index %}'>Delete</a>
 {% endif %}
 </div>
 
 {% if perm != "" %}
 <center>
 <div class="rating">
-<form action="{% url rt:movie_info num %}" method="post"> {% csrf_token %}
+<form action="{% url rt:tv_info num %}" method="post"> {% csrf_token %}
 <span>☆ 5</span><input type="radio" name="rating" value="5">
 <span>☆ 4</span><input type="radio" name="rating" value="4">
 <span>☆ 3</span><input type="radio" name="rating" value="3">

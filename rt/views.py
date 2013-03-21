@@ -418,6 +418,9 @@ def actor_info(request, i):
 	movieList = []
 	mIDList = []
 	mList = []
+	tvList = []
+	tIDList = []
+	tList = []
 	rating = 0
 	rat = 0
 	if 'username' in request.session:
@@ -462,6 +465,24 @@ def actor_info(request, i):
 				mList.append((str(movieList[m]), str(mIDList[m])))
 		except MovieStarred.DoesNotExist:
 			state = "Possible problem with the relational database."
+
+		try:
+                        tvsStarred = TVStarred.objects.filter(aID=actor)
+                        tvs = []
+                        for l in tvsStarred:
+                                tvs.append(l.tID)
+                        for k in tvs:
+                                tvList.append(k.title)
+                        for j in tvList:
+                                try:
+                                        tid = TVDB.objects.get(title=j)
+                                        tIDList.append(tid.id)
+                                except TVDB.DoesNotExist:
+                                        continue
+                        for m in range(len(tvs)):
+                                tList.append((str(tvList[m]), str(tIDList[m])))
+                except TVStarred.DoesNotExist:
+                        state = "Possible problem with the relational database."
 	
 		try:
                         actorRatings = ActorRating.objects.filter(aID=actor)
@@ -475,7 +496,7 @@ def actor_info(request, i):
 	
 	except ActorDB.DoesNotExist:
 		state = "This actor does not exist in our database."
-	return render(request, 'actor_info.html', {'state':state, 'name':st1, 'placeofbirth':st2, 'dateofbirth':st3, 'movies':mList, 'rating':rating, 'perm':perm, 'num':i, 'uid':uid})
+	return render(request, 'actor_info.html', {'state':state, 'name':st1, 'placeofbirth':st2, 'dateofbirth':st3, 'movies':mList, 'tvs':tList, 'rating':rating, 'perm':perm, 'num':i, 'uid':uid})
 	
 def actor_main(request):
 	state = ''
@@ -1354,7 +1375,7 @@ def tv_info(request, i):
 					userRating.rating = rat
 					userRating.save()
 				except TVRating.DoesNotExist:
-					userRating = TVRating(username=request.session['username'], tID=movie, rating=rat)
+					userRating = TVRating(username=request.session['username'], tID=tv, rating=rat)
 					userRating.save()
 	
 		try:
@@ -1427,3 +1448,110 @@ def tv_suggest_confirm(request):
 		else:
 			state = 'All fields need to be completed when suggesting a TV show.'
 			return render(request, 'error.html', {'state':state})
+
+def tv_add(request):
+	uid = 0
+	if 'username' in request.session:
+		uid = request.session['uid']
+		user = User.objects.get(username=request.session['username'])
+		if not user.is_staff:
+			state = "You do not have the permissions to add a TV show."
+			return render(request, 'perm_denied.html', {'state':state, 'uid':uid})
+	else:
+		state = "You are not logged in."
+		return render(request, 'perm_denied.html', {'state':state, 'uid':uid})
+	tvs = TV_Suggestion.objects.all()
+	li = []
+	for i in tvs:
+		li.append(i.title)
+	return render(request, 'tv_add.html', {'tvs':li, 'uid':uid})
+
+def tv_add_confirm(request, i):
+	uid = 0
+	if 'username' in request.session:
+		uid = request.session['uid']
+		user = User.objects.get(username=request.session['username'])
+		if not user.is_staff:
+			state = "You do not have the permissions to add a movie."
+			return render(request, 'perm_denied.html', {'state':state, 'uid':uid})
+	else:
+		state = "You are not logged in."
+		return render(request, 'perm_denied.html', {'state':state, 'uid':uid})
+	state = ''
+	st1 = st2 = st3 = st5 = st6 = ''
+	tvs = TV_Suggestion.objects.all()
+	if int(i) > len(tvs):
+		state = 'The movie does not exist in the suggestion database anymore.'
+	else:
+		tv = tvs[int(i)-1]
+		st1 = str(tv.title)
+		st2 = str(tv.year)
+		st3 = str(tv.season)
+		st5 = str(tv.actors)
+		st6 = str(tv.synopsis)
+	return render(request, 'tv_add_confirm.html', {'state':state, 'title':st1, 'year':st2, 'season':st3, 'actors':st5, 'synopsis':st6, 'num':i, 'uid':uid})
+
+def tv_add_end(request, i):
+	uid = 0
+	if 'username' in request.session:
+		uid = request.session['uid']
+		user = User.objects.get(username=request.session['username'])
+		if not user.is_staff:
+			state = "You do not have the permissions to add a TV show."
+			return render(request, 'perm_denied.html', {'state':state, 'uid':uid})
+	else:
+		state = "You are not logged in."
+		return render(request, 'perm_denied.html', {'state':state, 'uid':uid})
+	state = ''
+	st1 = ''
+	if request.POST:
+		num = int(i)
+		li = TV_Suggestion.objects.all()
+		confirm = request.POST.get('accept')
+		tv = li[num-1]
+		st1 = str(tv.title)
+		st2 = str(tv.year)
+		st3 = str(tv.season)
+		st5 = str(tv.actors)
+		st6 = str(tv.synopsis)
+		if confirm == 'y' or confirm == 'yes':
+			#Checks if the movie is already in the database
+			try:
+				TVDB.objects.get(title=st1)
+				state = "The movie is already in the database. The suggestion will be deleted. Please edit the current TV show."
+			except TVDB.DoesNotExist:
+				ac = st5.split(', ')
+				#Checks the relational property of TV-Actor. If the actor is not present, add the actor
+				for i in ac:
+					if len(i) > 0:
+							i = i[0].capitalize() + i[1:]
+					try:
+						ActorDB.objects.get(name=i)
+					except ActorDB.DoesNotExist:
+						newActor = ActorDB(name=i)
+						newActor.save()
+				newTV = TVDB(title=st1, year=st2, season=st3, synopsis=st6)
+				newTV.save()
+				
+				#Adds to the TV-Actor relational table
+				for i in ac:
+					if len(i) > 0:
+						i = i[0].capitalize() + i[1:]
+					try:
+						addActor = ActorDB.objects.get(name=i)
+						try:
+							TVStarred.objects.get(tID=newTV, aID=addActor)
+						except TVStarred.DoesNotExist:
+							newTARelation = TVStarred(tID=newTV, aID=addActor)
+							newTARelation.save()
+					except TVDB.DoesNotExist:
+						continue
+				
+				state = "The TV show has been successfully added to the database."
+			tv.delete()
+		elif confirm == 'n' or confirm == 'no':
+			tv.delete()
+			state = "The addition of this TV show has been refused."
+		else:
+			state = "No changes have been made. Please answer correctly 'yes' or 'no' in the previous page."
+	return render(request, 'tv_add_end.html', {'state':state, 'title':st1, 'uid':uid})
