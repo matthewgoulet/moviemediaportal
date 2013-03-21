@@ -33,6 +33,11 @@
 <b>Average User Rating: </b> {{ rating }} / 5
 <br>
 <br>
+{% if perm != "" %}
+<a href='{% url rt:tv_watchlist num %}'>{{ watchlist }}</a>
+{% endif %}
+<br>
+<br>
 {% if perm == "a" %}
 <a href='{% url rt:index %}'>Delete</a>
 {% endif %}

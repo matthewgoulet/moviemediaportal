@@ -121,3 +121,17 @@ class TVRating(models.Model):
 
         def __unicode__(self):
                 return self.tID
+
+class MovieWatchlist(models.Model):
+	username = models.CharField('Username', max_length=50)
+	mID = models.ForeignKey('MovieDB')
+
+	def __unicode__(self):
+		return self.mID
+
+class TVWatchlist(models.Model):
+	username = models.CharField('Username', max_length=50)
+	tID = models.ForeignKey('TVDB')
+
+	def __unicode__(self):
+		return self.tID

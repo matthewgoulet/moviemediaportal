@@ -19,6 +19,20 @@
 <br><br>
 {% if perm != "" %}
 <b>News: </b> {{ news }}
+<br><br><br>
+<b>Watchlist: </b><br>
+<u>Movies:</u><br>
+{{ mwl }}
+{% for a, b in mids %}
+<a href='{% url rt:movie_info b %}'>{{ a }}</a><br>
+{% endfor %}
+<br>
+<br>
+<u>TV Shows:</u><br>
+{{ twl }}
+{% for x, y in tids %}
+<a href='{% url rt:tv_info y %}'>{{ x }}</a><br>
+{% endfor %}
 {% endif %}
 <br>
 {% if perm == "a" %}

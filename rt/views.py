@@ -6,7 +6,7 @@ from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
 from django.forms.widgets import RadioSelect
 
-from rt.models import Movie_Suggestion, MovieDB, ActorDB, MovieStarred, Actor_Suggestion, Movie_Edit, Actor_Edit, MovieRating, ActorRating, Website, TVDB, TV_Suggestion, TVStarred, TVRating
+from rt.models import Movie_Suggestion, MovieDB, ActorDB, MovieStarred, Actor_Suggestion, Movie_Edit, Actor_Edit, MovieRating, ActorRating, Website, TVDB, TV_Suggestion, TVStarred, TVRating, MovieWatchlist, TVWatchlist
 
 def index(request):
 	state = 'Not logged in.'
@@ -14,6 +14,10 @@ def index(request):
 	uid = 0
 	perm = ""
 	news = 'No news currently.'
+	mwl = ''
+	twl = ''
+	mwl_ids = []
+	twl_ids = []
 	if 'username' in request.session:
 		un = str(request.session['username'])
 		uid = request.session['uid']
@@ -24,11 +28,37 @@ def index(request):
                 else:
                         perm = 'u'
 
+	#Checks for news
 	try:
 		n = Website.objects.get(typ='news')
 		news = n.message
 	except Website.DoesNotExist:
 		news = 'No news currently'
+
+	#Checks for the watchlists
+	try:
+		moviesWL = MovieWatchlist.objects.filter(username=un)
+		if len(moviesWL) == 0:
+			mwl = 'No movies in your watchlist'
+		mList = []
+		for j in moviesWL:
+			mList.append(j.mID)
+		titles = helper.sort_title(mList)
+		mwl_ids = helper.sort_id(moviesWL, titles)
+	except MovieWatchlist.DoesNotExist:
+		mwl = 'No movies in your watchlist'
+
+	try:
+		tvsWL = TVWatchlist.objects.filter(username=un)
+		if len(tvsWL) == 0:
+			twl = 'No TV shows in your watchlist'
+		tList = []
+		for j in tvsWL:
+			tList.append(j.tID)
+		titles2 = helper.sort_title(tList)
+		twl_ids = helper.sort_tv_id(tvsWL, titles2)
+	except TVWatchlist.DoesNotExist:
+		twl = 'No TV shows in your watchlist'
 
 	#Login post
 	if request.POST:
@@ -40,11 +70,46 @@ def index(request):
 				request.session['username'] = user.username
 				request.session['uid'] = user.id
 				state = 'Hello ' + str(request.session['username']) + '.'
-				return render(request, 'index.html', {'state':state, 'news':news, 'uid':request.session['uid'], 'perm':perm})
+
+				mwl = ''
+				twl = ''
+
+				#Checks for the watchlist
+				try:
+					moviesWL = MovieWatchlist.objects.filter(username=username)
+					if len(moviesWL) == 0:
+						mwl = 'No movies in your watchlist'
+					mList = []
+					for j in moviesWL:
+						mList.append(j.mID)
+						titles = helper.sort_title(mList)
+						mwl_ids = helper.sort_id(moviesWL, titles)
+				except MovieWatchlist.DoesNotExist:
+					mwl = 'No movies in your watchlist'
+
+				try:
+					tvsWL = TVWatchlist.objects.filter(username=username)
+					if len(tvsWL) == 0:
+						twl = 'No TV shows in your watchlist'
+					tList = []
+					for j in tvsWL:
+						tList.append(j.tID)
+						titles2 = helper.sort_title(tList)
+						twl_ids = helper.sort_tv_id(tvsWL, titles2)
+				except TVWatchlist.DoesNotExist:
+					twl = 'No TV shows in your watchlist'
+
+				user = User.objects.get(username=request.session['username'])
+                		if user.is_staff:
+                        		perm = 'a'
+                		else:
+                        		perm = 'u'
+				
+				return render(request, 'index.html', {'state':state, 'news':news, 'mids':mwl_ids, 'tids':twl_ids, 'mwl':mwl, 'twl':twl, 'uid':request.session['uid'], 'perm':perm})
 			else:
 				state = 'Username/password do not match.'
 				return render(request, 'login.html', {'state':state, 'uid':0, 'news':news})
-	return render(request, 'index.html', {'state':state, 'news':news, 'uid':uid, 'perm':perm})
+	return render(request, 'index.html', {'state':state, 'news':news, 'mids':mwl_ids, 'tids':twl_ids, 'mwl':mwl, 'twl':twl, 'uid':uid, 'perm':perm})
 
 def error(request):
 	uid = 0
@@ -298,6 +363,7 @@ def movie_info(request, i):
 	aList = []
 	rating = 0
 	rat = 0
+	watchlist = ''
 	if 'username' in request.session:
 		uid = request.session['uid']
 		user = User.objects.get(username=request.session['username'])
@@ -353,9 +419,15 @@ def movie_info(request, i):
 				rating = float(totalRating) / float(len(movieRatings)) 
 		except MovieRating.DoesNotExist:
 			rating = 0	
+		try:
+			MovieWatchlist.objects.get(username=user, mID=movie)
+			watchlist = 'Remove this movie from your watchlist'
+		except MovieWatchlist.DoesNotExist:
+			watchlist = 'Add this movie from your watchlist'
+			
 	except MovieDB.DoesNotExist:
 		state = "This movie does not exist in our database."
-	return render(request, 'movie_info.html', {'state':state, 'title':st1, 'year':st2, 'director':st3, 'producer':st4, 'actors':aList, 'synopsis':st6, 'rating':rating, 'perm':perm, 'num':i, 'uid':uid})
+	return render(request, 'movie_info.html', {'state':state, 'title':st1, 'year':st2, 'director':st3, 'producer':st4, 'actors':aList, 'synopsis':st6, 'rating':rating, 'watchlist':watchlist, 'perm':perm, 'num':i, 'uid':uid})
 
 def movie_delete(request, i):
 	uid = 0
@@ -1405,9 +1477,15 @@ def tv_info(request, i):
 				rating = float(totalRating) / float(len(TVRatings)) 
 		except TVRating.DoesNotExist:
 			rating = 0	
+		try:
+                        TVWatchlist.objects.get(username=user, tID=tv)
+                        watchlist = 'Remove this TV show from your watchlist'
+                except TVWatchlist.DoesNotExist:
+                        watchlist = 'Add this TV show from your watchlist'
+
 	except TVDB.DoesNotExist:
 		state = "This TV show does not exist in our database."
-	return render(request, 'tv_info.html', {'state':state, 'title':st1, 'year':st2, 'season':st3, 'actors':aList, 'synopsis':st4, 'rating':rating, 'perm':perm, 'num':i, 'uid':uid})
+	return render(request, 'tv_info.html', {'state':state, 'title':st1, 'year':st2, 'season':st3, 'actors':aList, 'synopsis':st4, 'rating':rating, 'watchlist':watchlist, 'perm':perm, 'num':i, 'uid':uid})
 
 def tv_suggest(request):
 	state = ''
@@ -1555,3 +1633,59 @@ def tv_add_end(request, i):
 		else:
 			state = "No changes have been made. Please answer correctly 'yes' or 'no' in the previous page."
 	return render(request, 'tv_add_end.html', {'state':state, 'title':st1, 'uid':uid})
+
+def movie_watchlist(request, i):
+	state = ''
+	uid = 0
+	movie = ''
+	title = ''
+        if 'username' in request.session:
+                uid = request.session['uid']
+                user = User.objects.get(username=request.session['username'])
+        else:
+                state = "You are not logged in."
+                return render(request, 'perm_denied.html', {'state':state, 'uid':uid})
+	try:
+		movie = MovieDB.objects.get(id=i)
+		title = movie.title
+	except MovieDB.DoesNotExist:
+		state = 'The movie has not found in the database.'
+		return render(request, 'error.html', {'state':state})
+
+	try:
+		mwl = MovieWatchlist.objects.get(username=user, mID=movie)
+		mwl.delete()
+		state = 'The movie has been removed from your watchlist.'
+	except MovieWatchlist.DoesNotExist:
+		mwl = MovieWatchlist(username=user, mID=movie)
+		mwl.save()
+		state = 'The movie has been added to your watchlist.'
+	return render(request, 'movie_watchlist.html', {'state':state, 'title':title})
+
+def tv_watchlist(request, i):
+	state = ''
+	uid = 0
+	tv = ''
+	title = ''
+	if 'username' in request.session:
+		uid = request.session['uid']
+		user = User.objects.get(username=request.session['username'])
+	else:
+		state = 'You are not logged in.'
+		return render(request, 'perm_denied.html', {'state':state, 'uid':uid})
+	try:
+		tv = TVDB.objects.get(id=i)
+		title = tv.title
+	except TVDB.DoesNotExist:
+		state = 'The TV show has not been found in the database.'
+		return render(request, 'error.html', {'state':state})
+
+	try:
+		twl = TVWatchlist.objects.get(username=user, tID=tv)
+		twl.delete()
+		state = 'The TV show has been removed from your watchlist.'
+	except TVWatchlist.DoesNotExist:
+		twl = TVWatchlist(username=user, tID=tv)
+		twl.save()
+		state = 'The TV show has been added to your watchlist.'
+	return render(request, 'tv_watchlist.html', {'state':state, 'title':title})
