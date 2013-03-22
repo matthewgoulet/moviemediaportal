@@ -1,0 +1,58 @@
+<html>
+<title>Help Menu</title>
+
+<head>
+<link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}style.css">
+<link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}form-style.css">
+
+</head>
+
+<body>
+<div class="column">
+
+<div class="headerheader">
+	{% include 'navigation.html' %}
+</div><!--ends header-->
+
+<div class="notheader">
+
+<h1>Help menu</h1>
+
+<u>User:</u><br>
+-<a href='{% url rt:actor_main %}'>View actors</a><br>
+-<a href='{% url rt:movie_main %}'>View movies</a><br>
+-<a href='{% url rt:tv_main %}'>View TV shows</a><br>
+
+<br><br>
+
+{% if perm != "" %}
+<u>Members</u><br>
+-<a href='{% url rt:actor_suggest %}'>Suggest an actor</a><br>
+-<a href='{% url rt:movie_suggest %}'>Suggest a movie</a><br>
+-<a href='{% url rt:tv_suggest %}'>Suggest a TV show</a><br>
+
+<br><br>
+{% endif %}
+
+{% if perm == "a" %}
+<u>Admin</u><br>
+-<a href='{% url rt:actor_add %}'>Add an actor</a><br>
+-<a href='{% url rt:movie_add %}'>Add a movie</a><br>
+-<a href='{% url rt:tv_add %}'>Add a TV show</a><br>
+<br>
+-<a href='{% url rt:actor_edit %}'>Accept an actor edit</a><br>
+-<a href='{% url rt:movie_edit %}'>Accept a movie edit</a><br>
+
+<br><br>
+{% endif %}
+</div>
+
+{{ state }}
+
+</div> <!-- ends column -->
+
+<div class="footer">
+	{% include 'footer.html' %}
+</div>
+</body>
+</html> 

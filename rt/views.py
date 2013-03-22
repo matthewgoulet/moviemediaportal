@@ -1660,7 +1660,7 @@ def movie_watchlist(request, i):
 		mwl = MovieWatchlist(username=user, mID=movie)
 		mwl.save()
 		state = 'The movie has been added to your watchlist.'
-	return render(request, 'movie_watchlist.html', {'state':state, 'title':title})
+	return render(request, 'movie_watchlist.html', {'state':state, 'title':title, 'uid':uid})
 
 def tv_watchlist(request, i):
 	state = ''
@@ -1689,3 +1689,16 @@ def tv_watchlist(request, i):
 		twl.save()
 		state = 'The TV show has been added to your watchlist.'
 	return render(request, 'tv_watchlist.html', {'state':state, 'title':title})
+
+def help(request):
+	state = ''
+	perm = ''
+	uid = 0
+	if 'username' in request.session:
+		uid = request.session['uid']
+                user = User.objects.get(username=request.session['username'])
+                if user.is_staff:
+                        perm = 'a'
+                else:
+                        perm = 'u'
+	return render(request, 'help.html', {'state':state, 'perm':perm, 'uid':uid})
