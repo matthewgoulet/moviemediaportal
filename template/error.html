@@ -8,11 +8,21 @@
 <meta http-equiv="REFRESH" content='4; url= {% url rt:register %}'></head>
 {% elif state == "All fields need to be completed when suggesting a movie." %}
 <meta http-equiv="REFRESH" content='4; url= {% url rt:movie_suggest %}'></head>
+{% elif state == "Invalid year during the creation of a movie." %}
+<meta http-equiv="REFRESH" content='4; url= {% url rt:movie_suggest %}'></head>
+{% elif state == "Invalid actor names. (Format:  Actor A, Actor B, Actor C...)" %}
+<meta http-equiv="REFRESH" content='4; url= {% url rt:movie_suggest %}'></head>
 {% elif state == "All fields need to be completed when suggesting an actor." %}
 <meta http-equiv="REFRESH" content='4; url= {% url rt:actor_suggest %}'></head>
 {% elif state == "All fields need to be completed when suggesting a TV show." %}
 <meta http-equiv="REFRESH" content='4; url= {% url rt:tv_suggest %}'></head>
-{% elif state == "Invalid date during the creation of the actor profile. (MM-dd-YY)" %}
+{% elif state == "Invalid actor names when suggesting a TV show. (Format:  Actor A, Actor B, Actor C...)" %}
+<meta http-equiv="REFRESH" content='4; url= {% url rt:tv_suggest %}'></head>
+{% elif state == "Invalid year during the creation of a TV show." %}
+<meta http-equiv="REFRESH" content='4; url= {% url rt:tv_suggest %}'></head>
+{% elif state == "Invalid date during the creation of the actor profile. (mm-dd-YYYY)" %}
+<meta http-equiv="REFRESH" content='4; url= {% url rt:actor_suggest %}'></head>
+{% elif state == "Invalid actor name during the creation of the actor profile." %}
 <meta http-equiv="REFRESH" content='4; url= {% url rt:actor_suggest %}'></head>
 {% elif state == "All fields need to be completed when editing a movie." %}
 <meta http-equiv="REFRESH" content='4; url= {% url rt:movie_edit_suggest num %}'></head>

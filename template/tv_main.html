@@ -17,14 +17,14 @@
 <div class="notheader">
 {% if perm == "a" %}
 <a href='{% url rt:tv_add %}'>Add a TV show</a><br>
-<a href='{% url rt:index %}'>Accept a TV show edit</a><br>
+<a href='{% url rt:not_implemented %}'>Accept a TV show edit</a><br>
 <br>
 {% endif %}
 {% if perm != "" %}
 <a href='{% url rt:tv_suggest %}'>Suggest a TV show</a>
 <br>
 {% endif %}
-<a href='{% url rt:index %}'>Search for a TV show</a>
+<a href='{% url rt:not_implemented %}'>Search for a TV show</a>
 <br>
 
 <br><br>

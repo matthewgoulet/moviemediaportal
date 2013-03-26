@@ -1,3 +1,5 @@
+from datetime import date
+
 import helper
 from django.core.context_processors import csrf
 from django.http import HttpResponse
@@ -237,6 +239,13 @@ def movie_suggest_confirm(request):
 		st4 = str(movie.producer)
 		st5 = str(movie.actors)
 		st6 = str(movie.synopsis)
+		if int(st2) < 1880 or int(st2) > date.today().year:
+			state = 'Invalid year during the creation of a movie.'
+			return render(request, 'error.html', {'state':state})
+		for k in st5.split(', '):
+			if not k.isalpha():
+				state = 'Invalid actor names. (Format:  Actor A, Actor B, Actor C...)'
+				return render(request, 'error.html', {'state':state})
 		if not ti == '' and not ye == '' and not di == '' and not pr == '' and not ac == '' and not sy == '':
 			movie.save()
 			return render(request, 'movie_suggest_confirm.html', {'title':st1, 'year':st2, 'director':st3, 'producer':st4, 'actors':st5, 'synopsis':st6, 'uid':uid})
@@ -304,6 +313,9 @@ def movie_add_end(request, i):
 		num = int(i)
 		li = Movie_Suggestion.objects.all()
 		confirm = request.POST.get('accept')
+		if len(li) < 1:
+			state = 'No suggestions have been found.'
+			return render(request, 'error.html', {'state':state})
 		movie = li[num-1]
 		st1 = str(movie.title)
 		st2 = str(movie.year)
@@ -311,6 +323,7 @@ def movie_add_end(request, i):
 		st4 = str(movie.producer)
 		st5 = str(movie.actors)
 		st6 = str(movie.synopsis)
+
 		if confirm == 'y' or confirm == 'yes':
 			#Checks if the movie is already in the database
 			try:
@@ -620,15 +633,18 @@ def actor_suggest_confirm(request):
 		st3 = str(actor.dateofbirth)
 		st4 = str(actor.movies)
 		if not len(st3.split('-')) == 3:
-			state = 'Invalid date during the creation of the actor profile. (MM-dd-YYYY)'
+			state = 'Invalid date during the creation of the actor profile. (mm-dd-YYYY)'
 			return render(request, 'error.html', {'state':state})
 		else:
 			for i in st3.split('-'):
 				try:
 					int(i)
 				except ValueError:
-					state = 'Invalid date during the creation of the actor profile. (MM-dd-YY)'	
+					state = 'Invalid date during the creation of the actor profile. (mm-dd-YYYY)'	
 					return render(request, 'error.html', {'state':state})
+		if not na.isalpha():
+			state = 'Invalid actor name during the creation of the actor profile.'
+			return render(request, 'error.html', {'state':state})
 		if int(st3.split('-')[0]) < 0 or int(st3.split('-')[1]) < 0 or int(st3.split('-')[2]) < 0 or int(st3.split('-')[0]) > 12 or int(st3.split('-')[1]) > 31:
 			state = 'Invalid date during the creation of the actor profile. (MM-dd-YYYY)'
                         return render(request, 'error.html', {'state':state})
@@ -697,6 +713,9 @@ def actor_add_end(request, i):
 		num = int(i)
 		li = Actor_Suggestion.objects.all()
 		confirm = request.POST.get('accept')
+		if len(li) < 1:
+			state = 'This actor does not appear in the suggestion database anymore.'
+			return request(render, 'error.html', {'state':state})
 		actor = li[num-1]
 		st1 = str(actor.name)
 		st2 = str(actor.placeofbirth)
@@ -1156,6 +1175,8 @@ def navigation_search(request):
                         if len(ids) == 0:
                                 state = "No actors have been found to match the input specifications."
                         return render(request, 'navigation_search.html', {'state':state, 'ids':ids, 'typ':typ})
+		else:
+			return render(request, 'not_implemented.html', {'state':state})
 	return render(request, 'navigation_search.html', {'state':state, 'ids':ids, 'typ':typ})
 
 def actor_edit_suggest(request, i):
@@ -1520,6 +1541,17 @@ def tv_suggest_confirm(request):
 		st3 = str(tv.season)
 		st5 = str(tv.actors)
 		st6 = str(tv.synopsis)
+		if int(st2) < 1880 or int(st2) > date.today().year:
+                        state = 'Invalid year during the creation of a TV show.'
+                        return render(request, 'error.html', {'state':state})
+                for k in st5.split(', '):
+                        if not k.isalpha():
+                                state = 'Invalid actor names. (Format:  Actor A, Actor B, Actor C...)'
+                                return render(request, 'error.html', {'state':state})
+		for k in st5.split(', '):
+                        if not k.isalpha():
+                                state = 'Invalid actor names when suggesting a TV show. (Format:  Actor A, Actor B, Actor C...)'
+                                return render(request, 'error.html', {'state':state})
 		if not ti == '' and not ye == '' and not se == '' and not ac == '' and not sy == '':
 			tv.save()
 			return render(request, 'tv_suggest_confirm.html', {'title':st1, 'year':st2, 'season':st3, 'actors':st5, 'synopsis':st6, 'uid':uid})
@@ -1585,6 +1617,9 @@ def tv_add_end(request, i):
 	if request.POST:
 		num = int(i)
 		li = TV_Suggestion.objects.all()
+		if len(li) < 1:
+			state = 'The TV show suggestion has not been found in the database.'
+			return request(render, 'error.html', {'state':state})
 		confirm = request.POST.get('accept')
 		tv = li[num-1]
 		st1 = str(tv.title)
@@ -1702,3 +1737,7 @@ def help(request):
                 else:
                         perm = 'u'
 	return render(request, 'help.html', {'state':state, 'perm':perm, 'uid':uid})
+
+def not_implemented(request):
+	state = ''
+	return render(request, 'not_implemented.html', {'state':state})
