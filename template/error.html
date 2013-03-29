@@ -47,6 +47,9 @@
 <meta http-equiv="REFRESH" content='4; url= {% url rt:movie_suggest %}'></head>
 {% elif state == "Invalid producer name(s) during the creation of the movie." %}
 <meta http-equiv="REFRESH" content='4; url= {% url rt:movie_suggest %}'></head>
+{% elif state == "Invalid place of birth." %}
+<meta http-equiv="REFRESH" content='4; url= {% url rt:actor_suggest %}'></head>
+
 {% else %}
 <meta http-equiv="REFRESH" content='4; url= {% url rt:index %}'></head>
 {% endif %}

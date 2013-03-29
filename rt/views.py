@@ -660,6 +660,10 @@ def actor_suggest_confirm(request):
 					state = 'Invalid date during the creation of the actor profile. (mm-dd-YYYY)'	
 
 					return render(request, 'error.html', {'state':state})
+		for k in st2.split(' '):
+			if not k.isalpha():
+				state = 'Invalid place of birth.'
+				return render(request, 'error.html', {'state':state})
 		for k in na.split(' '):
 			if not k.isalpha():
 				state = 'Invalid actor name during the creation of the actor profile.'
