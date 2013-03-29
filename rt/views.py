@@ -382,6 +382,7 @@ def movie_info(request, i):
 	rating = 0
 	rat = 0
 	watchlist = ''
+	user = ''
 	if 'username' in request.session:
 		uid = request.session['uid']
 		user = User.objects.get(username=request.session['username'])
@@ -1449,6 +1450,7 @@ def tv_info(request, i):
 	aList = []
 	rating = 0
 	rat = 0
+	user = ''
 	if 'username' in request.session:
 		uid = request.session['uid']
 		user = User.objects.get(username=request.session['username'])
