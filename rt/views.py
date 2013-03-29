@@ -239,6 +239,11 @@ def movie_suggest_confirm(request):
 		st4 = str(movie.producer)
 		st5 = str(movie.actors)
 		st6 = str(movie.synopsis)
+		try:
+			int(st2)
+		except ValueError:
+			state = 'Invalid year during the creation of a movie.'
+			return render(request, 'error.html', {'state':state})
 		if int(st2) < 1880 or int(st2) > date.today().year:
 			state = 'Invalid year during the creation of a movie.'
 			return render(request, 'error.html', {'state':state})
@@ -1541,6 +1546,11 @@ def tv_suggest_confirm(request):
 		st3 = str(tv.season)
 		st5 = str(tv.actors)
 		st6 = str(tv.synopsis)
+		try:
+			int(st2)
+		except ValueError:
+			state = 'Invalid year during the creation of a TV show.'
+			return render(request, 'error.html', {'state':state})
 		if int(st2) < 1880 or int(st2) > date.today().year:
                         state = 'Invalid year during the creation of a TV show.'
                         return render(request, 'error.html', {'state':state})
