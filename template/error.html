@@ -43,6 +43,10 @@
 <meta http-equiv="REFRESH" content='4; url= {% url rt:movie_edit_suggest num %}'></head>
 {% elif state == "All fields need to be completed when editing an actor." %}
 <meta http-equiv="REFRESH" content='4; url= {% url rt:actor_edit_suggest num %}'></head>
+{% elif state == "Invalid director name(s) during the creation of the movie." %}
+<meta http-equiv="REFRESH" content='4; url= {% url rt:movie_suggest %}'></head>
+{% elif state == "Invalid producer name(s) during the creation of the movie." %}
+<meta http-equiv="REFRESH" content='4; url= {% url rt:movie_suggest %}'></head>
 {% else %}
 <meta http-equiv="REFRESH" content='4; url= {% url rt:index %}'></head>
 {% endif %}

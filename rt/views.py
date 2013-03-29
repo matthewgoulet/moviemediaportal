@@ -247,10 +247,21 @@ def movie_suggest_confirm(request):
 		if int(st2) < 1880 or int(st2) > date.today().year:
 			state = 'Invalid year during the creation of a movie.'
 			return render(request, 'error.html', {'state':state})
+		for j in st3.split(', '):
+			for k in j.split(' '):
+				if not k.isalpha():
+					state = 'Invalid director name(s) during the creation of the movie.'
+					return render(request, 'error.html', {'state':state})
+		for j in st4.split(', '):
+			for k in j.split(' '):
+				if not k.isalpha():
+					state = 'Invalid producer name(s) during the creation of the movie.'
+					return render(request, 'error.html', {'state':state})
 		for k in st5.split(', '):
-			if not k.isalpha():
-				state = 'Invalid actor names. (Format:  Actor A, Actor B, Actor C...)'
-				return render(request, 'error.html', {'state':state})
+			for j in k.split(' '):
+				if not j.isalpha():
+					state = 'Invalid actor names. (Format:  Actor A, Actor B, Actor C...)'
+					return render(request, 'error.html', {'state':state})
 		if not ti == '' and not ye == '' and not di == '' and not pr == '' and not ac == '' and not sy == '':
 			movie.save()
 			return render(request, 'movie_suggest_confirm.html', {'title':st1, 'year':st2, 'director':st3, 'producer':st4, 'actors':st5, 'synopsis':st6, 'uid':uid})
@@ -647,10 +658,12 @@ def actor_suggest_confirm(request):
 					int(i)
 				except ValueError:
 					state = 'Invalid date during the creation of the actor profile. (mm-dd-YYYY)'	
+
 					return render(request, 'error.html', {'state':state})
-		if not na.isalpha():
-			state = 'Invalid actor name during the creation of the actor profile.'
-			return render(request, 'error.html', {'state':state})
+		for k in na.split(' '):
+			if not k.isalpha():
+				state = 'Invalid actor name during the creation of the actor profile.'
+				return render(request, 'error.html', {'state':state})
 		if int(st3.split('-')[0]) < 0 or int(st3.split('-')[1]) < 0 or int(st3.split('-')[2]) < 0 or int(st3.split('-')[0]) > 12 or int(st3.split('-')[1]) > 31:
 			state = 'Invalid date during the creation of the actor profile. (MM-dd-YYYY)'
                         return render(request, 'error.html', {'state':state})
@@ -1557,10 +1570,11 @@ def tv_suggest_confirm(request):
                         state = 'Invalid year during the creation of a TV show.'
                         return render(request, 'error.html', {'state':state})
                 for k in st5.split(', '):
-                        if not k.isalpha():
-                                state = 'Invalid actor names. (Format:  Actor A, Actor B, Actor C...)'
-                                return render(request, 'error.html', {'state':state})
-		for k in st5.split(', '):
+			for j in k.split(' '):
+                        	if not k.isalpha():
+                                	state = 'Invalid actor names. (Format:  Actor A, Actor B, Actor C...)'
+                                	return render(request, 'error.html', {'state':state})
+		for k in st5.split(', ').split(' '):
                         if not k.isalpha():
                                 state = 'Invalid actor names when suggesting a TV show. (Format:  Actor A, Actor B, Actor C...)'
                                 return render(request, 'error.html', {'state':state})
