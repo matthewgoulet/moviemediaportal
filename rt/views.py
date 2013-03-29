@@ -664,7 +664,7 @@ def actor_suggest_confirm(request):
 			if not k.isalpha():
 				state = 'Invalid actor name during the creation of the actor profile.'
 				return render(request, 'error.html', {'state':state})
-		if int(st3.split('-')[0]) < 0 or int(st3.split('-')[1]) < 0 or int(st3.split('-')[2]) < 0 or int(st3.split('-')[0]) > 12 or int(st3.split('-')[1]) > 31:
+		if int(st3.split('-')[0]) < 0 or int(st3.split('-')[1]) < 0 or int(st3.split('-')[2]) < 0 or int(st3.split('-')[0]) > 12 or int(st3.split('-')[1]) > 31 or int(st3.split('-')[2]) > date.today().year:
 			state = 'Invalid date during the creation of the actor profile. (MM-dd-YYYY)'
                         return render(request, 'error.html', {'state':state})
 		if not na == '' and not pl == '' and not da == '' and not mo == '':
