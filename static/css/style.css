@@ -9,6 +9,10 @@ html
     background-attachment:fixed;
     background-origin:initial;
     background-clip:initial;
+<<<<<<< HEAD
+    display:block;
+=======
+>>>>>>> 19240c5975b1f256f5adc6f5347a4397bc8a28b7
 }
 
 body {
@@ -19,7 +23,11 @@ body {
     margin:0px;
     padding:0px;
     overflow:hidden;
+<<<<<<< HEAD
+    display:block;
+=======
     background-image:url('bg-image.jpg');
+>>>>>>> 19240c5975b1f256f5adc6f5347a4397bc8a28b7
 	/* For any browser that can't create a gradient  */
     background-color: #C9C0BB;
 	
