@@ -5,6 +5,16 @@
 <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}style.css">
 <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}form-style.css">
 
+<style type="text/css">
+		span.description span {
+            position: absolute; left: -9999px;
+             margin: 20px 0 0 0px; padding: 3px 3px 3px 3px;
+       }
+      span.description:hover span {
+           left: 2%; background: #ffffff; margin: 0 0 0 170px; background: #ffffff;
+       } 
+</style>
+
 </head>
 
 <body>
@@ -19,29 +29,51 @@
 <h1>Help menu</h1>
 
 <u>User:</u><br>
--<a href='{% url rt:actor_main %}'>View actors</a><br>
--<a href='{% url rt:movie_main %}'>View movies</a><br>
--<a href='{% url rt:tv_main %}'>View TV shows</a><br>
+-<span class="description"><a href='{% url rt:actor_main %}'>View actors</a>
+<span style="width:500px;">Lists all the current available actors</span>
+</span><br>
+-<span class="description"><a href='{% url rt:movie_main %}'>View movies</a>
+<span style="width:500px;">Lists all the current available movies</span>
+</span><br>
+-<span class="description"><a href='{% url rt:tv_main %}'>View TV shows</a>
+<span style="width:500px;">Lists all the current available TV shows</span>
+</span><br>
 
 <br><br>
 
 {% if perm != "" %}
 <u>Members</u><br>
--<a href='{% url rt:actor_suggest %}'>Suggest an actor</a><br>
--<a href='{% url rt:movie_suggest %}'>Suggest a movie</a><br>
--<a href='{% url rt:tv_suggest %}'>Suggest a TV show</a><br>
+-<span class="description"><a href='{% url rt:actor_suggest %}'>Suggest an actor</a>
+<span style="width:400px;">Allows you to suggest an actor for the administrator to add to the database</span>
+</span><br>
+-<span class="description"><a href='{% url rt:movie_suggest %}'>Suggest a movie</a>
+<span style="width:400px;">Allows you to suggest a movie for the administrator to add to the database</span>
+</span><br>
+-<span class="description"><a href='{% url rt:tv_suggest %}'>Suggest a TV show</a>
+<span style="width:400px;">Allows you to suggest a TV show for the administrator to add to the database</span>
+</span><br>
 
 <br><br>
 {% endif %}
 
 {% if perm == "a" %}
 <u>Admin</u><br>
--<a href='{% url rt:actor_add %}'>Add an actor</a><br>
--<a href='{% url rt:movie_add %}'>Add a movie</a><br>
--<a href='{% url rt:tv_add %}'>Add a TV show</a><br>
+-<span class="description"><a href='{% url rt:actor_add %}'>Add an actor</a>
+<span style="width:500px;">Allows you to add an actor to the database</span>
+</span><br>
+-<span class="description"><a href='{% url rt:movie_add %}'>Add a movie</a>
+<span style="width:500px;">Allows you to add a movie to the database</span>
+</span><br>
+-<span class="description"><a href='{% url rt:tv_add %}'>Add a TV show</a>
+<span style="width:500px;">Allows you to add a TV show to the database</span>
+</span><br>
 <br>
--<a href='{% url rt:actor_edit %}'>Accept an actor edit</a><br>
--<a href='{% url rt:movie_edit %}'>Accept a movie edit</a><br>
+-<span class="description"><a href='{% url rt:actor_edit %}'>Accept an actor edit</a>
+<span style="width:500px;">Allows you to confirm a suggested change to a specific actor</span>
+</span><br>
+-<span class="description"><a href='{% url rt:movie_edit %}'>Accept a movie edit</a>
+<span style="width:500px;">Allows you to confirm a suggested change to a specific movie</span>
+</span><br>
 
 <br><br>
 {% endif %}
